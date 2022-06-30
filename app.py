@@ -1,13 +1,24 @@
+import os,time
+
 from flask import Flask
 from flask import render_template
 from flask import send_file
 from flask import url_for
 from flask import request
 from flask import logging
+from flask import session
+
+from flask_login import LoginManager
+
 from py.EmailMe import EmailMe
-import os,time
+from py.LoginUser import User
 
 app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY') # must
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 emailMe = EmailMe('smtp.qq.com',465)
 
 @app.route('/')
@@ -17,6 +28,27 @@ def root():
 @app.route('/index')
 def index():
     return render_template('index.html')
+
+# login_user
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
+    if request.method == 'POST':
+        session['username'] = request.form['username']
+        return redirect(url_for('index'))
+    else:
+        return render_template('signin.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('index'))
+
+
+# This callback is used to reload the user object from the user ID stored in the session.
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
 
 @app.route('/album/')
 @app.route('/album/<name>')
