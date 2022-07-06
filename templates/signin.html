@@ -35,16 +35,16 @@
   <body class="text-center">
     
 <main class="form-signin">
-  <form>
-    <img class="mb-4" src="{{url_for('static',filename='assets/svg/bootstrap-logo.svg')}}" alt="" width="72" height="57">
+  <form method = "post">
+    <img class="mb-4" data-feather="log-in" width="72" height="57">
     <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
 
     <div class="form-floating">
-      <input type="email" class="form-control" id="floatingInput" placeholder="18112682xxx">
+      <input name="phone" type="tel" class="form-control" id="floatingInput" placeholder="18112689999">
       <label for="floatingInput">Phone Number</label>
     </div>
     <div class="form-floating">
-      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+      <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="password">
       <label for="floatingPassword">Password</label>
     </div>
 
@@ -57,8 +57,10 @@
     <p class="mt-5 mb-3 text-muted">&copy; 2017–2021</p>
   </form>
 </main>
-
-
-    
-  </body>
+		 <!-- Feather Icon-->
+		<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+		<script>
+	        feather.replace()
+	    </script>
+    </body>
 </html>

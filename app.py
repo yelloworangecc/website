@@ -7,8 +7,13 @@ from flask import url_for
 from flask import request
 from flask import logging
 from flask import session
+from flask import redirect
 
 from flask_login import LoginManager
+from flask_login import logout_user
+from flask_login import login_user
+from flask_login import current_user
+
 
 from py.EmailMe import EmailMe
 from py.LoginUser import User
@@ -33,22 +38,26 @@ def index():
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if request.method == 'POST':
-        session['username'] = request.form['username']
-        return redirect(url_for('index'))
+        phone = request.form['phone']
+        password = request.form['password']
+        print(phone + " " + password)
+        user = User.get(phone)
+        if user.verify_password(password):
+            login_user(user)
+            return redirect(url_for('index'))
     else:
         return render_template('signin.html')
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    logout_user()
     return redirect(url_for('index'))
-
 
 # This callback is used to reload the user object from the user ID stored in the session.
 @login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-
+def load_user(phone):
+    print(phone)
+    return User.get(phone)
 
 @app.route('/album/')
 @app.route('/album/<name>')
