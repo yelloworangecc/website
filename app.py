@@ -8,6 +8,9 @@ from flask import request
 from flask import logging
 from flask import session
 from flask import redirect
+from flask import send_from_directory
+
+from werkzeug.utils import secure_filename
 
 from flask_login import LoginManager
 from flask_login import logout_user
@@ -20,6 +23,7 @@ from py.LoginUser import User
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY') # must
+app.config['LIVE_FOLD'] = 'live/'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -52,6 +56,26 @@ def signin():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+# play video
+@app.route('/live')
+def live():
+    return render_template('live.html')
+
+# access playlist and segment files
+@app.route('/live/<filename>', methods=['GET','PUT'])
+def uploaded_file(filename):
+    if request.method == 'PUT':
+        file_name = os.path.join(app.config['LIVE_FOLD'],filename)
+        with open(file_name,mode='wb') as file:
+            file.write(request.data)
+        # print(request)
+        # file.save(os.path.join(app.config['LIVE_FOLD'], secure_filename(file.filename)))
+        return 'success'
+    else:
+        print('GET')
+        return send_from_directory(app.config['LIVE_FOLD'],filename)
+
 
 # This callback is used to reload the user object from the user ID stored in the session.
 @login_manager.user_loader
