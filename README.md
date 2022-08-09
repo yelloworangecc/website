@@ -1,2 +1,2 @@
 # website
-my website developed using flask and bootstrap
+My personal website developed with flask and bootstrap
