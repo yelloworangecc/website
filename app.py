@@ -1,13 +1,33 @@
+import os,time
+
 from flask import Flask
 from flask import render_template
 from flask import send_file
 from flask import url_for
 from flask import request
 from flask import logging
+from flask import session
+from flask import redirect
+from flask import send_from_directory
+
+from werkzeug.utils import secure_filename
+
+from flask_login import LoginManager
+from flask_login import logout_user
+from flask_login import login_user
+from flask_login import current_user
+
+
 from py.EmailMe import EmailMe
-import os,time
+from py.LoginUser import User
 
 app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY') # must
+app.config['LIVE_FOLD'] = 'live/'
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 emailMe = EmailMe('smtp.qq.com',465)
 
 @app.route('/')
@@ -17,6 +37,50 @@ def root():
 @app.route('/index')
 def index():
     return render_template('index.html')
+
+# login_user
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
+    if request.method == 'POST':
+        phone = request.form['phone']
+        password = request.form['password']
+        print(phone + " " + password)
+        user = User.get(phone)
+        if user.verify_password(password):
+            login_user(user)
+            return redirect(url_for('index'))
+    return render_template('signin.html')
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+# play video
+@app.route('/live')
+def live():
+    return render_template('live.html')
+
+# access playlist and segment files
+@app.route('/live/<filename>', methods=['GET','PUT'])
+def uploaded_file(filename):
+    if request.method == 'PUT':
+        file_name = os.path.join(app.config['LIVE_FOLD'],filename)
+        with open(file_name,mode='wb') as file:
+            file.write(request.data)
+        # print(request)
+        # file.save(os.path.join(app.config['LIVE_FOLD'], secure_filename(file.filename)))
+        return 'success'
+    else:
+        print('GET')
+        return send_from_directory(app.config['LIVE_FOLD'],filename)
+
+
+# This callback is used to reload the user object from the user ID stored in the session.
+@login_manager.user_loader
+def load_user(phone):
+    print(phone)
+    return User.get(phone)
 
 @app.route('/album/')
 @app.route('/album/<name>')
