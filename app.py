@@ -56,6 +56,11 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+# visit blog
+@app.route('/blog')
+def blog():
+    return render_template('blog.html')
+
 # play video
 @app.route('/live')
 def live():
@@ -68,11 +73,9 @@ def uploaded_file(filename):
         file_name = os.path.join(app.config['LIVE_FOLD'],filename)
         with open(file_name,mode='wb') as file:
             file.write(request.data)
-        # print(request)
-        # file.save(os.path.join(app.config['LIVE_FOLD'], secure_filename(file.filename)))
+        # TODO if ts file, remove old files
         return 'success'
     else:
-        print('GET')
         return send_from_directory(app.config['LIVE_FOLD'],filename)
 
 
