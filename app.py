@@ -24,6 +24,8 @@ from py.LoginUser import User
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY') # must
 app.config['LIVE_FOLD'] = 'live/'
+app.config['IP'] = 'None'
+app.config['TS_NUMBER'] = 1000
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -37,6 +39,10 @@ def root():
 @app.route('/index')
 def index():
     return render_template('index.html')
+
+@app.route('/hello')
+def hello():
+    return app.config['IP']
 
 # login_user
 @app.route('/signin', methods=['GET', 'POST'])
@@ -70,10 +76,21 @@ def live():
 @app.route('/live/<filename>', methods=['GET','PUT'])
 def uploaded_file(filename):
     if request.method == 'PUT':
-        file_name = os.path.join(app.config['LIVE_FOLD'],filename)
-        with open(file_name,mode='wb') as file:
+        # Record IP
+        app.config['IP'] = request.remote_addr
+        # Delete file
+        dot_index = filename.find('.')
+        postfix = filename[dot_index+1:]
+        if postfix == 'ts':
+            number = int(filename[8:dot_index])
+            if number >= app.config['TS_NUMBER']:
+                deletefile = 'playlist'+str(number - app.config['TS_NUMBER'])+'.ts'
+                deletepath = os.path.join(app.config['LIVE_FOLD'],deletefile)
+                os.remove(deletepath)
+				
+        filepath = os.path.join(app.config['LIVE_FOLD'],filename)
+        with open(filepath,mode='wb') as file:
             file.write(request.data)
-        # TODO if ts file, remove old files
         return 'success'
     else:
         return send_from_directory(app.config['LIVE_FOLD'],filename)
