@@ -12,6 +12,7 @@ from flask import send_from_directory
 
 from werkzeug.utils import secure_filename
 
+import flask_login
 from flask_login import LoginManager
 from flask_login import logout_user
 from flask_login import login_user
@@ -20,6 +21,7 @@ from flask_login import current_user
 
 from py.EmailMe import EmailMe
 from py.LoginUser import User
+from py.MemberManager import Member
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY') # must
@@ -62,6 +64,41 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return redirect(url_for('signin'))#'Unauthorized', 401
+
+# signup
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        phone = request.form['phone']
+        password = request.form['password']
+    return render_template('signup.html')
+
+
+# member management
+@app.route('/member', methods=['GET', 'POST'])
+def member():
+    # load all members first
+    if not Member.load():
+        return '<h1>query member failed, members not loaded</h1>'
+
+    if request.method == 'GET':
+        # get member by phone
+        member = None;
+        print(request.args)
+        if len(request.args) > 0:
+            print(request.args['phone'])
+            member = Member.get(request.args['phone'])
+            print(member)
+
+        return render_template('member.html',member=member)
+
+    else:
+        return '<h1>developing</h1>'
+
+
 # visit blog
 @app.route('/blog')
 def blog():
@@ -69,6 +106,7 @@ def blog():
 
 # play video
 @app.route('/live')
+@flask_login.login_required
 def live():
     return render_template('live.html')
 

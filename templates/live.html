@@ -1,4 +1,29 @@
-{% extends 'ex_common.html' %}
-{% block content %}
-<video height="600" id="video" controls></video>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+    {% from 'macros.html' import head %}
+    {{ head('Home Page') }}
+    
+    <body id="page-top">
+        <!-- Navigation-->
+        {% from 'macros.html' import navigation %}
+        {{ navigation(current_user) }}
+
+        <section class="signup-section" id="signup">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5">
+                    <div class="col-md-10 col-lg-8 mx-auto text-center">
+                        <i class="far fa-paper-plane fa-2x mb-2 text-white"></i>
+                        <video width="640" height="480" id="video" controls></video>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        {% from 'macros.html' import footer %}
+        {{ footer() }}
+        
+	    {% from 'macros.html' import hls %}
+        {{ hls() }}
+    </body>
+</html>
+

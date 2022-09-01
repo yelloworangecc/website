@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% from 'macros.html' import head %}
+    {{ head('Home Page') }}
+    
+    <body id="page-top">
+        <!-- Navigation-->
+        {% from 'macros.html' import navigation %}
+        {{ navigation(current_user) }}
+
+        <section class="signup-section" id="signup">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5">
+                    <div class="col-md-10 col-lg-8 mx-auto text-center">
+                      <!-- query form -->
+					  <form method="GET">
+					    <img class="mb-4" data-feather="user" width="72" height="57" />
+					    <h1 class="h3 mb-3 fw-normal">查询用户</h1>
+
+					    <div class="form-floating">
+					      <input name="phone" type="tel" class="form-control" id="floatingInput" value="{% if member %} {{ member.getPhone() }} {% endif %}" />
+					      <label for="floatingInput">手机号码</label>
+					    </div>
+
+					    <button class="w-100 btn btn-lg btn-primary" type="submit">查询</button>
+					  </form>
+                    </div>
+                    
+                    <div class="col-md-10 col-lg-8 mx-auto text-left">
+						<label class="text-light" for="username" class="form-label">姓名</label>
+						<input type="text" class="form-control" id="username" value="{% if member %} {{ member.getName() }} {% endif %}" readonly/>
+						
+						<label class="text-light" for="points" class="form-label">积分余额</label>
+						<input type="number" class="form-control" id="points" readonly/>
+						
+						<label class="text-light" for="times" class="form-label">积分次数</label>
+						<input type="number" class="form-control" id="times" readonly/>
+						
+						<label class="text-light" for="lasttime" class="form-label">上次积分时间</label>
+						<input type="datetime-local" class="form-control" id="lasttime" readonly/>
+						
+						<form method = "post">
+						<label class="text-light" for="lasttime" class="form-label">本次积分变动</label>
+						<input type="number"  class="form-control" id="lasttime" />
+
+						<button class="btn btn-lg btn-primary" type="submit">积分</button>
+						<button class="btn btn-lg btn-danger" type="submit">兑换</button>
+
+						</form>
+					</div>
+                </div>
+            </div>
+        </section>
+        
+        {% from 'macros.html' import footer %}
+        {{ footer() }}
+        
+    </body>
+</html>
+
+
