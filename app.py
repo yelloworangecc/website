@@ -86,14 +86,14 @@ def member():
 
     if request.method == 'GET':
         # get member by phone
-        member = None;
-        print(request.args)
+        member = None
         if len(request.args) > 0:
-            print(request.args['phone'])
             member = Member.get(request.args['phone'])
-            print(member)
-
-        return render_template('member.html',member=member)
+            
+        Member.genTop10()
+        members_p=Member.getTop10Points()
+        members_t=Member.getTop10Times()
+        return render_template('member.html',member=member,members_p=members_p,members_t=members_t)
 
     else:
         return '<h1>developing</h1>'

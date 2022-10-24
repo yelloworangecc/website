@@ -9,9 +9,9 @@
         {{ navigation(current_user) }}
 
         <section class="signup-section" id="signup">
-            <div class="container px-4 px-lg-5">
-                <div class="row gx-4 gx-lg-5">
-                    <div class="col-md-10 col-lg-8 mx-auto text-center">
+            <div class="container px-3 px-lg-4">
+                <div class="row gx-3 gx-lg-4">
+                    <div class="col-md-6 col-lg-4 mx-auto text-center order-1">
                       <!-- query form -->
 					  <form method="GET">
 					    <img class="mb-4" data-feather="user" width="72" height="57" />
@@ -24,20 +24,18 @@
 
 					    <button class="w-100 btn btn-lg btn-primary" type="submit">查询</button>
 					  </form>
-                    </div>
-                    
-                    <div class="col-md-10 col-lg-8 mx-auto text-left">
+					  <form method="POST">
 						<label class="text-light" for="username" class="form-label">姓名</label>
-						<input type="text" class="form-control" id="username" value="{% if member %} {{ member.getName() }} {% endif %}" readonly/>
+						<input type="text" class="form-control" id="username" value="{% if member %} {{ member.getName() }} {% endif %}"/>
 						
 						<label class="text-light" for="points" class="form-label">积分余额</label>
-						<input type="number" class="form-control" id="points" readonly/>
+						<input type="number" class="form-control" id="points" value={% if member %} {{ member.sum() }} {% endif %} readonly/>
 						
 						<label class="text-light" for="times" class="form-label">积分次数</label>
-						<input type="number" class="form-control" id="times" readonly/>
+						<input type="number" class="form-control" id="times" value={% if member %} {{ member.count() }} {% endif %} readonly/>
 						
 						<label class="text-light" for="lasttime" class="form-label">上次积分时间</label>
-						<input type="datetime-local" class="form-control" id="lasttime" readonly/>
+						<input type="text" class="form-control" id="lasttime" value="{% if member %} {{ member.getLastTime() }} {% endif %}" readonly/>
 						
 						<form method = "post">
 						<label class="text-light" for="lasttime" class="form-label">本次积分变动</label>
@@ -48,6 +46,24 @@
 
 						</form>
 					</div>
+					
+                	<div class="col-md-6 col-lg-4 mx-auto order-first">
+                		<h3>top10 of points</h3>
+                		<ul>
+                		{% for member in members_p %}
+                		<li>{{ member.getName() }} {{ member.sum() }}</li>
+                		{% endfor %}
+                		</ul>
+                	</div>
+                	
+					<div class="col-md-6 col-lg-4 mx-aut order-last">
+                		<h3>top10 of times</h3>
+                		<ul>
+                		{% for member in members_t %}
+                		<li>{{ member.getName() }} {{ member.count() }}</li>
+                		{% endfor %}
+                		</ul>
+                	</div>
                 </div>
             </div>
         </section>
