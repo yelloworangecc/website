@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     {% from 'macros.html' import head %}
-    {{ head('Home Page') }}
+    {{ head('Home Page','grayscale') }}
     
     <body id="page-top">
         <!-- Navigation-->
@@ -9,17 +9,9 @@
         {{ navigation(current_user) }}
         
         <!-- Masthead-->
-        <header class="masthead">
-            <div class="container px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
-                <div class="d-flex justify-content-center">
-                    <div class="text-center">
-                        <h1 class="mx-auto my-0 text-uppercase">Developing...</h1>
-                        <h2 class="text-white-50 mx-auto mt-2 mb-5">My new personal website developed with flask and bootstrap.</h2>
-                        <a class="btn btn-primary" href="#about">Get Started</a>
-                    </div>
-                </div>
-            </div>
-        </header>
+        {% from 'macros.html' import masthead %}
+        {{ masthead('Developing...','My new personal website developed with flask and bootstrap') }}
+        
         <!-- About-->
         <section class="about-section text-center" id="about">
             <div class="container px-4 px-lg-5">
@@ -109,20 +101,8 @@
                 </div>
             </div>
         </section>
-        <!-- Contact-->
-        <section class="contact-section bg-black">
-            <div class="container px-4 px-lg-5">
-                <div class="row gx-4 gx-lg-5">
-                    TODO: email me
-                </div>
-                <div class="social d-flex justify-content-center">
-                    <a class="mx-2" href="#!"><i data-feather="linkedin"></i></a>
-                    <a class="mx-2" href="#!"><i data-feather="github"></i></a>
-                </div>
-            </div>
-        </section>
         
         {% from 'macros.html' import footer %}
-        {{ footer() }}
+        {{ footer('grayscale') }}
     </body>
 </html>

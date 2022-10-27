@@ -22,12 +22,14 @@ from flask_login import current_user
 from py.EmailMe import EmailMe
 from py.LoginUser import User
 from py.MemberManager import Member
+from py.ArticleManager import Article
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY') # must
 app.config['LIVE_FOLD'] = 'live/'
 app.config['IP'] = 'None'
 app.config['TS_NUMBER'] = 1000
+app.config['BLOG_PER_PAGE'] = 5
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -98,11 +100,23 @@ def member():
     else:
         return '<h1>developing</h1>'
 
-
-# visit blog
+# blog list
 @app.route('/blog')
 def blog():
-    return render_template('blog.html')
+    # load all articles first
+    if not Article.load():
+        return '<h1>load articles failed</h1>'
+
+    articles = Article.getPageList(0, app.config['BLOG_PER_PAGE'])
+    print(len(articles))
+    return render_template('blog.html',articles=articles)
+
+# single article
+@app.route('/blog/<filename>')
+def post(filename):    
+    return render_template(f'posts/{filename}')
+
+ 
 
 # play video
 @app.route('/live')

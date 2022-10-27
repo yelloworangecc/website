@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     {% from 'macros.html' import head %}
-    {{ head('Home Page') }}
+    {{ head('Home Page','grayscale') }}
     
     <body id="page-top">
         <!-- Navigation-->
@@ -20,7 +20,7 @@
         </section>
         
         {% from 'macros.html' import footer %}
-        {{ footer() }}
+        {{ footer('grayscale') }}
         
 	    {% from 'macros.html' import hls %}
         {{ hls() }}
