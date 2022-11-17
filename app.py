@@ -89,6 +89,7 @@ def member():
     if request.method == 'GET':
         # get member by phone
         member = None
+        print(request.args)
         if len(request.args) > 0:
             member = Member.get(request.args['phone'])
             
@@ -98,7 +99,11 @@ def member():
         return render_template('member.html',member=member,members_p=members_p,members_t=members_t)
 
     else:
-        return '<h1>developing</h1>'
+        member = Member.get(request.args['phone'])
+        member.modifyPoints(float(request.form['point']))
+        members_p=Member.getTop10Points()
+        members_t=Member.getTop10Times()
+        return render_template('member.html',member=member,members_p=members_p,members_t=members_t)
 
 # blog list
 @app.route('/blog')
@@ -116,7 +121,11 @@ def blog():
 def post(filename):    
     return render_template(f'posts/{filename}')
 
- 
+
+@app.route('/upload/post/<filename>', methods=['PUT'])
+def upload_post(filename):
+    print(request.data)
+    return "None"
 
 # play video
 @app.route('/live')

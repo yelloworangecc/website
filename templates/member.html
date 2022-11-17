@@ -13,38 +13,46 @@
                 <div class="row gx-3 gx-lg-4">
                     <div class="col-md-6 col-lg-4 mx-auto text-center order-1">
                       <!-- query form -->
-					  <form method="GET">
+					  <form name="query_form" method="GET">
 					    <img class="mb-4" data-feather="user" width="72" height="57" />
 					    <h1 class="h3 mb-3 fw-normal">查询用户</h1>
 
 					    <div class="form-floating">
-					      <input name="phone" type="tel" class="form-control" id="floatingInput" value="{% if member %} {{ member.getPhone() }} {% endif %}" />
+					      <input name="phone" type="tel" class="form-control" id="floatingInput" value="{% if member %} {{member.getPhone()}} {% endif %}" />
 					      <label for="floatingInput">手机号码</label>
 					    </div>
 
 					    <button class="w-100 btn btn-lg btn-primary" type="submit">查询</button>
 					  </form>
-					  <form method="POST">
+
+					  
+					  <form name="modify_form" method="POST">
 						<label class="text-light" for="username" class="form-label">姓名</label>
-						<input type="text" class="form-control" id="username" value="{% if member %} {{ member.getName() }} {% endif %}"/>
+						<input name="name" type="text" class="form-control" id="username" value="{% if member %} {{member.getName()}} {% endif %}"/>
 						
 						<label class="text-light" for="points" class="form-label">积分余额</label>
-						<input type="number" class="form-control" id="points" value={% if member %} {{ member.sum() }} {% endif %} readonly/>
+						<input type="number" class="form-control" id="points" value={% if member %} {{member.sum()}} {% endif %} readonly/>
 						
 						<label class="text-light" for="times" class="form-label">积分次数</label>
-						<input type="number" class="form-control" id="times" value={% if member %} {{ member.count() }} {% endif %} readonly/>
+						<input type="number" class="form-control" id="times" value={% if member %} {{member.count()}} {% endif %} readonly/>
 						
 						<label class="text-light" for="lasttime" class="form-label">上次积分时间</label>
-						<input type="text" class="form-control" id="lasttime" value="{% if member %} {{ member.getLastTime() }} {% endif %}" readonly/>
+						<input type="text" class="form-control" id="lasttime" value="{% if member %} {{member.getLastTime()}} {% endif %}" readonly/>
 						
-						<form method = "post">
-						<label class="text-light" for="lasttime" class="form-label">本次积分变动</label>
-						<input type="number"  class="form-control" id="lasttime" />
-
+						<label class="text-light" for="point" class="form-label">本次积分变动</label>
+						<input name="point" type="number"  class="form-control" id="point" />
+						
 						<button class="btn btn-lg btn-primary" type="submit">积分</button>
-						<button class="btn btn-lg btn-danger" type="submit">兑换</button>
+						<button class="btn btn-lg btn-danger" type="submit" onclick="submit()">兑换</button>
 
 						</form>
+						<script>
+							function submit(){
+								window.alert("submit");
+								document.modify_form.append('<input name="minus" class="form-check-input visually-hidden" type="checkbox" checked/>');
+								document.modify_form.submit();
+							}
+						</script>
 					</div>
 					
                 	<div class="col-md-6 col-lg-4 mx-auto order-first">
