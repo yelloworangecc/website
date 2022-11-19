@@ -41,18 +41,13 @@
 						
 						<label class="text-light" for="point" class="form-label">本次积分变动</label>
 						<input name="point" type="number"  class="form-control" id="point" />
+
+						<input name="minus" id="minus" class="form-check-input visually-hidden" type="checkbox"/>
 						
-						<button class="btn btn-lg btn-primary" type="submit">积分</button>
-						<button class="btn btn-lg btn-danger" type="submit" onclick="submit()">兑换</button>
+						<button class="btn btn-lg btn-primary" type="submit" onclick="document.getElementById('minus').checked=false">积分</button>
+						<button class="btn btn-lg btn-danger" type="submit" onclick="document.getElementById('minus').checked=true">兑换</button>
 
 						</form>
-						<script>
-							function submit(){
-								window.alert("submit");
-								document.modify_form.append('<input name="minus" class="form-check-input visually-hidden" type="checkbox" checked/>');
-								document.modify_form.submit();
-							}
-						</script>
 					</div>
 					
                 	<div class="col-md-6 col-lg-4 mx-auto order-first">

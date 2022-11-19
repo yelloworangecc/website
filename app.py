@@ -36,6 +36,11 @@ login_manager.init_app(app)
 
 emailMe = EmailMe('smtp.qq.com',465)
 
+@app.teardown_request
+def teardown_request(exception=None):
+    print('this runs after request') 
+
+
 @app.route('/')
 def root():
     return render_template('index.html')
@@ -89,7 +94,6 @@ def member():
     if request.method == 'GET':
         # get member by phone
         member = None
-        print(request.args)
         if len(request.args) > 0:
             member = Member.get(request.args['phone'])
             
@@ -100,7 +104,10 @@ def member():
 
     else:
         member = Member.get(request.args['phone'])
-        member.modifyPoints(float(request.form['point']))
+        point=int(request.form['point'])
+        if 'minus' in request.form:
+            point = -point
+        member.modifyPoints(point)
         members_p=Member.getTop10Points()
         members_t=Member.getTop10Times()
         return render_template('member.html',member=member,members_p=members_p,members_t=members_t)
