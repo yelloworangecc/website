@@ -28,16 +28,16 @@
 					  
 					  <form name="modify_form" method="POST">
 						<label class="text-light" for="username" class="form-label">姓名</label>
-						<input name="name" type="text" class="form-control" id="username" value="{% if member %} {{member.getName()}} {% endif %}"/>
+						<input name="name" type="text" class="form-control" id="username" value="{{memberController.getName()}}"/>
 						
 						<label class="text-light" for="points" class="form-label">积分余额</label>
-						<input type="number" class="form-control" id="points" value={% if member %} {{member.sum()}} {% endif %} readonly/>
+						<input type="number" class="form-control" id="points" value={{memberController.points()}} readonly/>
 						
 						<label class="text-light" for="times" class="form-label">积分次数</label>
-						<input type="number" class="form-control" id="times" value={% if member %} {{member.count()}} {% endif %} readonly/>
+						<input type="number" class="form-control" id="times" value={{memberController.times()}} readonly/>
 						
 						<label class="text-light" for="lasttime" class="form-label">上次积分时间</label>
-						<input type="text" class="form-control" id="lasttime" value="{% if member %} {{member.getLastTime()}} {% endif %}" readonly/>
+						<input type="text" class="form-control" id="lasttime" value="{{memberController.getLastTime()}}" readonly/>
 						
 						<label class="text-light" for="point" class="form-label">本次积分变动</label>
 						<input name="point" type="number"  class="form-control" id="point" />
@@ -53,8 +53,8 @@
                 	<div class="col-md-6 col-lg-4 mx-auto order-first">
                 		<h3>top10 of points</h3>
                 		<ul>
-                		{% for member in members_p %}
-                		<li>{{ member.getName() }} {{ member.sum() }}</li>
+                		{% for member in memberController.getTop10Points() %}
+                		<li>{{ member.name() }} {{ member.points() }}</li>
                 		{% endfor %}
                 		</ul>
                 	</div>
@@ -62,8 +62,8 @@
 					<div class="col-md-6 col-lg-4 mx-aut order-last">
                 		<h3>top10 of times</h3>
                 		<ul>
-                		{% for member in members_t %}
-                		<li>{{ member.getName() }} {{ member.count() }}</li>
+                		{% for member in memberController.getTop10Times() %}
+                		<li>{{ member.name() }} {{ member.times() }}</li>
                 		{% endfor %}
                 		</ul>
                 	</div>

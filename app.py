@@ -21,8 +21,8 @@ from flask_login import current_user
 
 from py.EmailMe import EmailMe
 from py.LoginUser import User
-from py.MemberManager import Member
 from py.ArticleManager import Article
+from py.MemberController import *
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY') # must
@@ -87,6 +87,15 @@ def signup():
 # member management
 @app.route('/member', methods=['GET', 'POST'])
 def member():
+    member_controller=MemberController(request)
+    try:
+        html = member_controller.handle_request()
+    except InvalidMethod as e:
+        return str(e.args)
+    else:
+        return html
+ 
+'''
     # load all members first
     if not Member.load():
         return '<h1>query member failed, members not loaded</h1>'
@@ -111,6 +120,7 @@ def member():
         members_p=Member.getTop10Points()
         members_t=Member.getTop10Times()
         return render_template('member.html',member=member,members_p=members_p,members_t=members_t)
+'''
 
 # blog list
 @app.route('/blog')
