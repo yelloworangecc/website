@@ -1,4 +1,5 @@
 from .JsonDB import JsonDB
+import datetime
 
 class Member():
     '''
@@ -12,12 +13,22 @@ class Member():
     db = JsonDB('json/Members.json')
     
     def __init__(self, phone):
-        if phone not None:
+        if phone:
             self.data = Member.db.get("phone",phone)
+            if self.data is None:
+                self.data = {}
         else:
             self.data = {}
-        self.sum = None
-        self.time = None
+            
+        self._point = 0
+        self._time = 0
+        self._lastTime = "1111-11-00 00:00"
+
+    def __lt__(self, other):
+        return self.name() < other.name()
+
+    def __eq__(self, other):
+        return self.name() == other.name()
 
     def phone(self):
         '''
@@ -28,11 +39,11 @@ class Member():
         return None
 
     def setPhone(self,phone):
+        print(phone)
         self.data["phone"] = phone
         self.data["name"] = ""
         self.data["points"] = []
         self.data["times"] = []
-        self.update()
 
     def name(self):
         if self.data:
@@ -42,63 +53,57 @@ class Member():
     def setName(self,name):
         if self.data:
             self.data["name"] = name
-            self.update()
 
-    def points(self):
-        if self.sum not None:
-            return self.sum
+    def point(self):
+        if self._point == 0:
+            self._calc();
+        return self._point
 
-        self.sum = 0
-        if self.data:
-            for item in self.data["points"]:
-                self.sum = self.sum + item
-
-        return self.sum
-
-    def times(self):
-        if self.time not None:
-            return self.time
-
-        self.time = ""
-        if self.data:
-            count = len(self.data["times"])
-            if count > 0:
-                self.time = self.data["times"][count]
-   
-        return self.time
+    def time(self):
+        if self._time == 0:
+            self._calc()
+        return self._time
 
     def lastTime(self):
-        index = len(self.data["times"]) - 1
-        if index < 0:
-            return None
-        return self.member["times"][index]
+        if self._lastTime == "1111-11-00 00:00":
+            self._calc()
+        return self._lastTime
 
     def addPoint(self,point):
         if self.data:
             self.data["points"].append(point)
             time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             self.data["times"].append(time)
-            self.update()
         
     def updateDB(self):
         if self.data:
-            Member.db.set(self, "phone", self.data["phone"], self.data)
+            Member.db.set("phone", self.data["phone"], self.data)
             Member.db.save()
+
+    def _calc(self):
+        if self.data and "points" in self.data and "times" in self.data:
+            index = 0
+            for item in self.data["points"]:
+                self._point = self._point + item
+                if item > 0:
+                    self._time = self._time + 1
+                    self._lastTime = self.data["times"][index]
+                index = index + 1
 
     @staticmethod
     def comparePoints(memberA,memberB):
-        if memberA.points() > memberB.points():
+        if memberA.point() > memberB.point():
             return 1
-        elif memberA.points() == memberB.points():
+        elif memberA.point() == memberB.point():
             return 0
         else:
             return -1
 
     @staticmethod
     def compareTimes(memberA,memberB):
-        if memberA.times() > memberB.times():
+        if memberA.time() > memberB.time():
             return 1
-        elif memberA.times() == memberB.times():
+        elif memberA.time() == memberB.time():
             return 0
         else:
             return -1

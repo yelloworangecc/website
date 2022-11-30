@@ -9,63 +9,71 @@
         {{ navigation(current_user) }}
 
         <section class="signup-section" id="signup">
-            <div class="container px-3 px-lg-4">
-                <div class="row gx-3 gx-lg-4">
+            <div class="container px-2 px-lg-3">
+                <div class="row gx-2 gx-lg-3">
                     <div class="col-md-6 col-lg-4 mx-auto text-center order-1">
-                      <!-- query form -->
-					  <form name="query_form" method="GET">
-					    <img class="mb-4" data-feather="user" width="72" height="57" />
-					    <h1 class="h3 mb-3 fw-normal">查询用户</h1>
+                      
+				      <img class="mb-4" data-feather="user" width="72" height="57" />
+				      <h1 class="h3 mb-3 fw-normal">{% if memberController.getName() %}{{ memberController.getName() }}{% else %}会员{% endif %}</h1>
+					  <div class="row">
+						<label class="col text-light">积分余额</label>
+						<label class="col text-light">{{memberController.getPoint()}} 分</label>
+					  </div>
+						
+					  <div class="row">
+						<label class="col text-light">消费次数</label>
+						<label class="col text-light">{{memberController.getTime()}} 次</label>
+					  </div>
+						
+					  <div class="row">
+						<label class="col text-light">上次消费时间</label>
+						<label class="col text-light">{{memberController.getLastTime()}}:00</label>
+					  </div>
+                      
+					  <form name="query_form" method="GET" style="margin-top:1rem">
 
 					    <div class="form-floating">
-					      <input name="phone" type="tel" class="form-control" id="floatingInput" value="{% if member %} {{member.getPhone()}} {% endif %}" />
-					      <label for="floatingInput">手机号码</label>
+					      <input name="phone" type="tel" class="form-control" id="phone" value="{{memberController.getPhone()}}" />
+					      <label for="phone">手机号码</label>
 					    </div>
 
 					    <button class="w-100 btn btn-lg btn-primary" type="submit">查询</button>
 					  </form>
 
-					  
-					  <form name="modify_form" method="POST">
-						<label class="text-light" for="username" class="form-label">姓名</label>
-						<input name="name" type="text" class="form-control" id="username" value="{{memberController.getName()}}"/>
-						
-						<label class="text-light" for="points" class="form-label">积分余额</label>
-						<input type="number" class="form-control" id="points" value={{memberController.points()}} readonly/>
-						
-						<label class="text-light" for="times" class="form-label">积分次数</label>
-						<input type="number" class="form-control" id="times" value={{memberController.times()}} readonly/>
-						
-						<label class="text-light" for="lasttime" class="form-label">上次积分时间</label>
-						<input type="text" class="form-control" id="lasttime" value="{{memberController.getLastTime()}}" readonly/>
-						
-						<label class="text-light" for="point" class="form-label">本次积分变动</label>
-						<input name="point" type="number"  class="form-control" id="point" />
-
+					  <form name="modify_form" method="POST" style="margin-top:1rem">
+					  	<div class="form-floating">
+						  <input name="name" type="text" class="form-control" id="username" value="{{memberController.getName()}}"/>
+						  <label for="username">姓名</label>
+						</div>
+						<div class="form-floating">
+						  <input name="point" type="number" class="form-control" id="point" />
+						  <label for="point">本次积分变动</label>
+						</div>
 						<input name="minus" id="minus" class="form-check-input visually-hidden" type="checkbox"/>
 						
-						<button class="btn btn-lg btn-primary" type="submit" onclick="document.getElementById('minus').checked=false">积分</button>
-						<button class="btn btn-lg btn-danger" type="submit" onclick="document.getElementById('minus').checked=true">兑换</button>
+						<button class="w-100 btn btn-lg btn-primary" type="submit" onclick="document.getElementById('minus').checked=false">积分</button>
+						<button class="w-100 btn btn-lg btn-danger" type="submit" onclick="document.getElementById('minus').checked=true">兑换</button>
 
 						</form>
 					</div>
 					
-                	<div class="col-md-6 col-lg-4 mx-auto order-first">
-                		<h3>top10 of points</h3>
+                	<div class="col-md-6 col-lg-4 mx-auto order-first text-light">
+                		<h3>最多消费积分</h3>
                 		<ul>
-                		{% for member in memberController.getTop10Points() %}
-                		<li>{{ member.name() }} {{ member.points() }}</li>
+                		{% for member_pair in memberController.getTop10Points() %}
+                		<li>{{ member_pair[1].name() }}{{ member_pair[0] }} 分</li>
+                		{% endfor %}
+                		</ul>
+                		
+                		<h3>最多消费次数</h3>
+                		<ul>
+                		{% for member_pair in memberController.getTop10Times() %}
+                		<li>{{ member_pair[1].name() }}{{ member_pair[0] }} 次</li>
                 		{% endfor %}
                 		</ul>
                 	</div>
                 	
-					<div class="col-md-6 col-lg-4 mx-aut order-last">
-                		<h3>top10 of times</h3>
-                		<ul>
-                		{% for member in memberController.getTop10Times() %}
-                		<li>{{ member.name() }} {{ member.times() }}</li>
-                		{% endfor %}
-                		</ul>
+					<div class="col-md-6 col-lg-4 mx-aut order-last text-light">
                 	</div>
                 </div>
             </div>

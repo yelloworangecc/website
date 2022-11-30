@@ -10,12 +10,12 @@ class TopK():
         '''return count of list container'''
         return self.listContainer.count()
 
-    def update(self,value,compareF):
-        '''compare and update heap'''
+    def update(self,pair):
+        '''compare and update heap, pair is a two element tuple'''
         if len(self.listContainer) < self.k:
-            heapq.heappush(self.listContainer,value)
-        elif compareF(value,self.listContainer[0]) > 0:
-            heapq.heapreplace(self.listContainer,value)
+            heapq.heappush(self.listContainer,pair)
+        elif pair[0] > self.listContainer[0][0]:
+            heapq.heapreplace(self.listContainer,pair)
         else:
             pass
 

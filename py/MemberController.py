@@ -6,24 +6,32 @@ class InvalidMethod(Exception):
     pass
 
 class MemberController():
-    top10Points = []
-    top10Times = []
+    top10Points = TopK(10)
+    top10Times = TopK(10)
 
     def __init__(self,request):
         self.request = request
-        self.member = Member(request.args['phone'])
+        self.phone_arg = None
+        if 'phone' in request.args:
+            self.phone_arg = request.args['phone']
+            self.member = Member(self.phone_arg)
+        else:
+            self.member = Member(None)
 
     def getPhone(self):
-        return self.member.phone()
+        phone = self.member.phone()
+        if phone is None:
+            phone = self.phone_arg
+        return phone
         
     def getName(self):
         return self.member.name()
 
-    def getPoints(self):
-        return self.member.points()
+    def getPoint(self):
+        return self.member.point()
 
-    def getTimes(self):
-        return self.member.times()
+    def getTime(self):
+        return self.member.time()
 
     def getLastTime(self):
         return self.member.lastTime()
@@ -31,11 +39,11 @@ class MemberController():
     @staticmethod
     def genTop10():
         MemberController.top10Points.clear()
-        MemberController.top10Points.clear()
-        for json_member in db:
+        MemberController.top10Times.clear()
+        for json_member in Member.db.load():
             member=Member(json_member["phone"])
-            MemberController.top10Points.update(member,Member.comparePoints)
-            MemberController.top10Times.update(member,Member.compareTimes)
+            MemberController.top10Points.update((member.point(),member))
+            MemberController.top10Times.update((member.time(),member))
 
     @staticmethod
     def getTop10Points():
@@ -47,20 +55,22 @@ class MemberController():
         
         
     def handle_request(self):
-        if request.method == 'GET':
+        if self.request.method == 'GET':
             pass
-        elif request.method == 'POST':
+        elif self.request.method == 'POST':
             # new phone
             if self.member.phone() is None:
-                self.member.setPhone(request.args['phone'])
+                print(self.phone_arg)
+                self.member.setPhone(self.phone_arg)
             # compare & update name
             member_name = self.member.name()
-            form_name = request.form['name']
+            form_name = self.request.form['name']
             if member_name != form_name:
-                member.setName(self, form_name)
+                self.member.setName(form_name)
             # add point
-            point=int(request.form['point'])
-            if 'minus' in request.form:
+            point=int(self.request.form['point'])
+            point=abs(point)
+            if 'minus' in self.request.form:
                 point = -point
             self.member.addPoint(point)
             # update database & top 10
