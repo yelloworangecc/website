@@ -1,4 +1,5 @@
 import os,time
+import hashlib
 
 from flask import Flask
 from flask import render_template
@@ -25,6 +26,9 @@ from py.ArticleManager import Article
 from py.MemberController import *
 
 app = Flask(__name__)
+app.wx_token = os.getenv('WX_TOKEN')
+app.wx_id = os.getenv('WX_ID')
+app.wx_pwd = os.getenv('WX_PWD')
 app.secret_key = os.getenv('SECRET_KEY') # must
 app.config['LIVE_FOLD'] = 'live/'
 app.config['IP'] = 'None'
@@ -52,6 +56,31 @@ def index():
 @app.route('/hello')
 def hello():
     return app.config['IP']
+
+@app.route('/wx/token')
+def wx_token():
+    print(request.args)
+    signature = request.args['signature']
+    print(signature)
+    echostr = request.args['echostr']
+    print(echostr)
+    timestamp = request.args['timestamp']
+    print(timestamp)
+    nonce = request.args['nonce']
+    print(nonce)
+    token = app.wx_token
+    print(token)
+    list = [token, timestamp, nonce]
+    list.sort()
+    str=list[0]+list[1]+list[2]
+    sha1 = hashlib.sha1()
+    sha1.update(str.encode('utf-8'))
+    hashcode = sha1.hexdigest()
+    print(hashcode)
+    if hashcode == signature:
+        return echostr
+    else:
+        return ""
 
 # login_user
 @app.route('/signin', methods=['GET', 'POST'])
@@ -223,4 +252,6 @@ def messageme():
         return render_template('msgform.html')
 
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0',port=8080)
+    debug_port = os.getenv('FLASK_DEBUG_PORT')
+    print(debug_port)
+    app.run(debug=True,host='0.0.0.0',port=debug_port)
