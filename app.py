@@ -1,5 +1,4 @@
 import os,time
-import hashlib
 
 from flask import Flask
 from flask import render_template
@@ -19,21 +18,23 @@ from flask_login import logout_user
 from flask_login import login_user
 from flask_login import current_user
 
-
 from py.EmailMe import EmailMe
 from py.LoginUser import User
-from py.ArticleManager import Article
 from py.MemberController import *
 
+# initialize app
 app = Flask(__name__)
-app.wx_token = os.getenv('WX_TOKEN')
-app.wx_id = os.getenv('WX_ID')
-app.wx_pwd = os.getenv('WX_PWD')
+app.app_context().push()
 app.secret_key = os.getenv('SECRET_KEY') # must
 app.config['LIVE_FOLD'] = 'live/'
 app.config['IP'] = 'None'
 app.config['TS_NUMBER'] = 1000
-app.config['BLOG_PER_PAGE'] = 5
+
+# regist blueprint
+from wx import module_wx
+app.register_blueprint(module_wx)
+from blog import module_blog
+app.register_blueprint(module_blog)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -56,31 +57,6 @@ def index():
 @app.route('/hello')
 def hello():
     return app.config['IP']
-
-@app.route('/wx/token')
-def wx_token():
-    print(request.args)
-    signature = request.args['signature']
-    print(signature)
-    echostr = request.args['echostr']
-    print(echostr)
-    timestamp = request.args['timestamp']
-    print(timestamp)
-    nonce = request.args['nonce']
-    print(nonce)
-    token = app.wx_token
-    print(token)
-    list = [token, timestamp, nonce]
-    list.sort()
-    str=list[0]+list[1]+list[2]
-    sha1 = hashlib.sha1()
-    sha1.update(str.encode('utf-8'))
-    hashcode = sha1.hexdigest()
-    print(hashcode)
-    if hashcode == signature:
-        return echostr
-    else:
-        return ""
 
 # login_user
 @app.route('/signin', methods=['GET', 'POST'])
@@ -123,50 +99,6 @@ def member():
         return str(e.args)
     else:
         return html
- 
-'''
-    # load all members first
-    if not Member.load():
-        return '<h1>query member failed, members not loaded</h1>'
-
-    if request.method == 'GET':
-        # get member by phone
-        member = None
-        if len(request.args) > 0:
-            member = Member.get(request.args['phone'])
-            
-        Member.genTop10()
-        members_p=Member.getTop10Points()
-        members_t=Member.getTop10Times()
-        return render_template('member.html',member=member,members_p=members_p,members_t=members_t)
-
-    else:
-        member = Member.get(request.args['phone'])
-        point=int(request.form['point'])
-        if 'minus' in request.form:
-            point = -point
-        member.modifyPoints(point)
-        members_p=Member.getTop10Points()
-        members_t=Member.getTop10Times()
-        return render_template('member.html',member=member,members_p=members_p,members_t=members_t)
-'''
-
-# blog list
-@app.route('/blog')
-def blog():
-    # load all articles first
-    if not Article.load():
-        return '<h1>load articles failed</h1>'
-
-    articles = Article.getPageList(0, app.config['BLOG_PER_PAGE'])
-    print(len(articles))
-    return render_template('blog.html',articles=articles)
-
-# single article
-@app.route('/blog/<filename>')
-def post(filename):    
-    return render_template(f'posts/{filename}')
-
 
 @app.route('/upload/post/<filename>', methods=['PUT'])
 def upload_post(filename):

@@ -63,7 +63,7 @@
             		{% for article in articles %}
             		<!-- Post preview-->
                     <div class="post-preview">
-                        <a href="{{ url_for('post',filename=article.getFileName()) }}">
+                        <a href="{{ url_for('module_blog.article',name=article.getFileName()) }}">
                             <h2 class="post-title">{{ article.getTitle() }}</h2>
                             <h3 class="post-subtitle">{{ article.getAbstract() }}</h3>
                         </a>
