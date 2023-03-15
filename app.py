@@ -184,6 +184,4 @@ def messageme():
         return render_template('msgform.html')
 
 if __name__ == '__main__':
-    debug_port = os.getenv('FLASK_DEBUG_PORT')
-    print(debug_port)
-    app.run(debug=True,host='0.0.0.0',port=debug_port)
+    app.run(debug=True,host='0.0.0.0',port=80)
