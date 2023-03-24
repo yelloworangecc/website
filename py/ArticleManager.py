@@ -20,7 +20,7 @@ class Article():
 
     @staticmethod
     def load():
-        if Article.all_j is not None:
+        if Article.all_j:
             return True
         else:
             with open('json/Articles.json','r',encoding='utf8') as fp:
@@ -63,3 +63,11 @@ class Article():
             
         return None
 
+    @staticmethod
+    def get(name):
+        if not Article.all_j:
+            Article.load()
+        for article_j in Article.all_j:
+            if article_j["file"] == name:
+                return Article(article_j)
+        return None
