@@ -1,5 +1,4 @@
-import json
-import datetime
+import json,datetime
 
 class Article():
     all_j = None
@@ -20,40 +19,32 @@ class Article():
 
     @staticmethod
     def load():
-        if Article.all_j:
-            return True
-        else:
+        if not Article.all_j:
             with open('json/Articles.json','r',encoding='utf8') as fp:
                 Article.all_j = json.load(fp)
         
-        if Article.all_j is None:
-            return False
+        if not Article.all_j:
+            Article.all_j = []
 
-        Article.all_j.sort(key=lambda x:x["time"])
         return True
 
     @staticmethod
     def getPageList(pageNo,perPage):
-        ''' pageNo start from 0 '''
-        if Article.all_j is None:
-            return None
-
+        Article.load()
+        
         startIndex = pageNo*perPage
         maxIndex = len(Article.all_j) - 1
-        print(startIndex,maxIndex)
         if startIndex > maxIndex:
             return None
             
         pageList = []   
         for i in range(perPage):
             currentIndex = startIndex+i
-            print(currentIndex)
             if currentIndex > maxIndex:
                 break
             article = Article(Article.all_j[currentIndex])
             pageList.append(article)
             
-        print(len(pageList))
         return pageList
 
     @staticmethod
@@ -65,9 +56,31 @@ class Article():
 
     @staticmethod
     def get(name):
-        if not Article.all_j:
-            Article.load()
+        Article.load()
+        
         for article_j in Article.all_j:
-            if article_j["file"] == name:
+            if article_j['file'] == name:
                 return Article(article_j)
         return None
+
+    @staticmethod
+    def add(filename,title,abstract):
+        Article.load()
+        
+        time_str = str(datetime.datetime.now())
+        print(time_str)
+        
+        article = Article.get(filename)
+        if article:
+            article.article_j['title'] = title
+            article.article_j['abstract'] = abstract
+            article.article_j['time'] = time_str 
+        else:
+            article_j = {}
+            article_j['file'] = filename
+            article_j['title'] = title
+            article_j['abstract'] = abstract
+            article_j['time'] = time_str
+            Article.all_j.append(article_j)
+        
+        return Article.save()

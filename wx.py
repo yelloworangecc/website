@@ -11,6 +11,10 @@ current_app.config['WX_ACCESS_EXPIRE'] = 7000
 current_app.config['WX_USER_TOTAL'] = 0
 current_app.config['WX_USER_COUNT'] = 0
 
+@module_wx.route('MP_verify_4P6XPqWt5Gxg697V.txt')
+def wx_verify():
+    return '4P6XPqWt5Gxg697V'
+
 @module_wx.route('/token')
 def token():
     if not request.args:
