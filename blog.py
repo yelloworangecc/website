@@ -31,7 +31,12 @@ def publish():
         file = request.files['file']
         if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() == 'html':
             filename = secure_filename(file.filename)
-            content = io.StringIO(str(file.read(), encoding='utf8'))
+
+            content = str(file.read(), encoding='utf8').replace('{{','{ {').replace('}}','} }').replace('{%','{ %').replace('%}','% }').replace('\r\n','\n')
+            with open(os.path.join(current_app.root_path, 'templates', 'posts', filename),'w',encoding='utf8') as fp:
+                fp.write(content)
+                
+            content = io.StringIO(content)
             while True:
                 line = content.readline().strip()
                 print(line)
@@ -43,15 +48,12 @@ def publish():
                     abstract = re.search('>.*<',multiline).group()[1:-1]
                     break
                 else:
-                    multiline = multiline + line
+                    multiline = multiline + ' ' + line
+            
             print(filename)
             print(title)
             print(abstract)
-            
-            Article.add(filename,title,abstract)
-                
-            file.seek(0)
-            file.save(os.path.join(current_app.root_path, 'templates', 'posts', filename))
+            Article.add(filename,title,abstract)                
             return 'OK'
     return '''
     <!doctype html>

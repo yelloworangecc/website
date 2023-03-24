@@ -9,9 +9,9 @@ Flask</h2>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;head&gt;</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;meta</span> <span class="er">charset</span><span class="ot">=</span><span class="st">&quot;utf-8&quot;</span><span class="kw">&gt;</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;meta</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;viewport&quot;</span> <span class="er">content</span><span class="ot">=</span><span class="st">&quot;width=device-width, initial-scale=1, minimal-ui&quot;</span><span class="kw">&gt;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;title&gt;</span>{{ article.getTitle() }}<span class="kw">&lt;/title&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;title&gt;</span>{ { article.getTitle() } }<span class="kw">&lt;/title&gt;</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;meta</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;color-scheme&quot;</span> <span class="er">content</span><span class="ot">=</span><span class="st">&quot;light dark&quot;</span><span class="kw">&gt;</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;link</span> <span class="er">rel</span><span class="ot">=</span><span class="st">&quot;stylesheet&quot;</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;github-markdown.css&quot;</span><span class="kw">&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;link</span> <span class="er">rel</span><span class="ot">=</span><span class="st">&quot;stylesheet&quot;</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;{ {url_for(&#39;static&#39;,filename=&#39;css/github-markdown.css&#39;)} }&quot;</span><span class="kw">&gt;</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;style&gt;</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>            body {</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                <span class="kw">box-sizing</span>: <span class="dv">border-box</span><span class="op">;</span></span>
@@ -21,21 +21,21 @@ Flask</h2>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                <span class="kw">padding</span>: <span class="dv">45</span><span class="dt">px</span><span class="op">;</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>            }</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            footer {</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            footer div{</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                <span class="kw">margin-top</span>: <span class="dv">100</span><span class="dt">px</span><span class="op">;</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                <span class="kw">text-align</span>: <span class="dv">justify</span><span class="op">;</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>            }</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>            footer<span class="in">:after</span> {</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>            footer div<span class="in">:after</span> {</span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>                <span class="kw">content</span>: <span class="st">&quot;&quot;</span><span class="op">;</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>                <span class="kw">display</span>: <span class="dv">inline-block</span><span class="op">;</span></span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>                <span class="kw">overflow</span>: <span class="dv">hidden</span><span class="op">;</span></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                <span class="kw">width</span>: <span class="dv">100</span><span class="dt">%</span><span class="op">;</span></span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>            }</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>            footer a {</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>                <span class="kw">width</span>: <span class="dv">80</span><span class="dt">px</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>                display: <span class="dv">inline-block</span><span class="op">;</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>            footer div a {</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>                <span class="kw">display</span>: <span class="dv">inline-block</span><span class="op">;</span></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                <span class="kw">text-align</span>: <span class="dv">center</span><span class="op">;</span></span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>            }</span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
@@ -56,20 +56,29 @@ Flask</h2>
 <span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;body&gt;</span></span>
 <span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>      <span class="kw">&lt;article</span> <span class="er">class</span><span class="ot">=</span><span class="st">&quot;markdown-body&quot;</span><span class="kw">&gt;</span></span>
 <span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>{% include &quot;posts/&quot;+ article.getFileName() %}</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>{ % include &quot;posts/&quot;+ article.getFileName() % }</span>
 <span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>      <span class="kw">&lt;/article&gt;</span></span>
 <span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>      <span class="kw">&lt;footer&gt;</span></span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;a</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;{{url_for(&#39;module_blog.article&#39;,name=article.getPrivious())}}&quot;</span><span class="kw">&gt;</span></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>          {% if not article.getPrivious() %} No more {% else %} Privious {% endif %}</span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/a&gt;</span></span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;a</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;{{url_for(&#39;module_blog.article&#39;,name=article.getNext())}}&quot;</span><span class="kw">&gt;</span></span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>          {% if not article.getNext() %} No more {% else %} Next {% endif %}</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/a&gt;</span></span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>      <span class="kw">&lt;/footer&gt;</span></span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;a</span> <span class="er">class</span><span class="ot">=</span><span class="st">&quot;github-fork-ribbon&quot;</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;{{url_for(&#39;module_blog.index&#39;)}}&quot;</span> <span class="er">data-ribbon</span><span class="ot">=</span><span class="st">&quot;Back to article list&quot;</span> <span class="er">title</span><span class="ot">=</span><span class="st">&quot;Back to article list&quot;</span><span class="kw">&gt;</span>Back to article list<span class="kw">&lt;/a&gt;</span></span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/body&gt;</span></span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/html&gt;</span></span></code></pre></div>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;div&gt;</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>        { % if article.getPrevious() % }</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;a</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;{ {url_for(&#39;module_blog.article&#39;,name=article.getPrevious())} }&quot;</span><span class="kw">&gt;</span>Previous</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>        { % else % }</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;a</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;{ {url_for(&#39;module_blog.index&#39;)} }&quot;</span><span class="kw">&gt;</span>No more</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>        { % endif % }</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/a&gt;</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>        { % if article.getNext() % }</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;a</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;{ {url_for(&#39;module_blog.article&#39;,name=article.getNext())} }&quot;</span><span class="kw">&gt;</span>Next</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>        { % else % }</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;a</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;{ {url_for(&#39;module_blog.index&#39;)} }&quot;</span><span class="kw">&gt;</span>No more</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>        { % endif % }</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/a&gt;</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>      <span class="kw">&lt;/footer&gt;</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;a</span> <span class="er">class</span><span class="ot">=</span><span class="st">&quot;github-fork-ribbon&quot;</span> <span class="er">href</span><span class="ot">=</span><span class="st">&quot;{ {url_for(&#39;module_blog.index&#39;)} }&quot;</span> <span class="er">data-ribbon</span><span class="ot">=</span><span class="st">&quot;Back to article list&quot;</span> <span class="er">title</span><span class="ot">=</span><span class="st">&quot;Back to article list&quot;</span><span class="kw">&gt;</span>Back to article list<span class="kw">&lt;/a&gt;</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/body&gt;</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/html&gt;</span></span></code></pre></div>
 <h2 id="export-html-segment-file-and-publish">Export HTML Segment File
 and Publish</h2>
 <h3 id="export">Export</h3>
@@ -77,7 +86,50 @@ and Publish</h2>
 <pre class="shell"><code>pandoc --embed-resources HC001.org -o HC001.html
 </code></pre>
 <h3 id="publish">Publish</h3>
-<p>Below is the publish shell script named post.sh</p>
-<pre class="shell"><code>#!/usr/bin/bash
+<p>Below is the implement of interface for publishing.</p>
+<pre class="shell"><code>@module_blog.route(&#39;/publish&#39;, methods=[&#39;GET&#39;, &#39;POST&#39;])
+def publish():
+    if request.method == &#39;POST&#39;:
+        if &#39;file&#39; not in request.files:
+            return &#39;FAIL&#39;
 
+        file = request.files[&#39;file&#39;]
+        if file and &#39;.&#39; in file.filename and file.filename.rsplit(&#39;.&#39;, 1)[1].lower() == &#39;html&#39;:
+            filename = secure_filename(file.filename)
+
+            content = str(file.read(), encoding=&#39;utf8&#39;).replace(&#39;{ {&#39;,&#39;{ {&#39;).replace(&#39;} }&#39;,&#39;} }&#39;).replace(&#39;{ %&#39;,&#39;{ %&#39;).replace(&#39;% }&#39;,&#39;% }&#39;).replace(&#39;\r\n&#39;,&#39;\n&#39;)
+            with open(os.path.join(current_app.root_path, &#39;templates&#39;, &#39;posts&#39;, filename),&#39;w&#39;,encoding=&#39;utf8&#39;) as fp:
+                fp.write(content)
+
+            content = io.StringIO(content)
+            while True:
+                line = content.readline().strip()
+                print(line)
+                if line[0] == &#39;&lt;&#39; and line[1] == &#39;h&#39; and line[2] == &#39;1&#39;:
+                    title = re.search(&#39;&gt;.*&lt;&#39;,line).group()[1:-1]
+                elif line[0] == &#39;&lt;&#39; and line[1] == &#39;p&#39;:
+                    multiline = line
+                elif line[0] == &#39;&lt;&#39; and line[1] == &#39;h&#39; and line[2] == &#39;2&#39;:
+                    abstract = re.search(&#39;&gt;.*&lt;&#39;,multiline).group()[1:-1]
+                    break
+                else:
+                    multiline = multiline + &#39; &#39; + line
+
+            print(filename)
+            print(title)
+            print(abstract)
+            Article.add(filename,title,abstract)                
+            return &#39;OK&#39;
+    return &#39;&#39;&#39;
+    &lt;!doctype html&gt;
+    &lt;title&gt;Upload Article&lt;/title&gt;
+    &lt;h1&gt;Upload Article&lt;/h1&gt;
+    &lt;form method=post enctype=multipart/form-data&gt;
+      &lt;input type=file name=file&gt;
+      &lt;input type=submit value=Upload&gt;
+    &lt;/form&gt;
+    &#39;&#39;&#39;
+</code></pre>
+<p>Below is the publish command.</p>
+<pre><code>curl -F file=@HC001.html http://127.0.0.1/blog/publish
 </code></pre>

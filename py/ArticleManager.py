@@ -2,6 +2,8 @@ import json,datetime
 
 class Article():
     all_j = None
+    p = None
+    n = None
     def __init__(self, article_j):
         self.article_j = article_j
 
@@ -16,6 +18,16 @@ class Article():
         
     def getPostTime(self):
         return self.article_j["time"]
+
+    def setRelative(self, p, n):
+        self.p = p
+        self.n = n
+
+    def getPrevious(self):
+        return self.p
+
+    def getNext(self):
+        return self.n
 
     @staticmethod
     def load():
@@ -57,11 +69,21 @@ class Article():
     @staticmethod
     def get(name):
         Article.load()
-        
+
+        previous = None
+        current = None
+        next = None
         for article_j in Article.all_j:
             if article_j['file'] == name:
-                return Article(article_j)
-        return None
+                current = Article(article_j)
+                continue
+            if current and not next:
+                next = article_j['file']
+                break
+            previous = article_j['file']
+
+        current.setRelative(previous,next)
+        return current
 
     @staticmethod
     def add(filename,title,abstract):
