@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
-		<title>{{ article.getTitle() }}</title>
+		<title>GitHub Markdown CSS demo</title>
 		<meta name="color-scheme" content="light dark">
 		<link rel="stylesheet" href="github-markdown.css">
 		<style>
@@ -15,31 +15,12 @@
 				padding: 45px;
 			}
 
-			footer {
-			    margin-top: 100px;
-			    text-align: justify;
-			}
-
-			footer:after {
-			    content: "";
-			    display: inline-block;
-			    overflow: hidden;
-			    width: 100%;
-			}
-
-			footer a {
-			    width: 80px
-			    display: inline-block;
-			    text-align: center;
-			}
-
 			@media (prefers-color-scheme: dark) {
 				body {
 					background-color: #0d1117;
 				}
 			}
 		</style>
-		
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css">
 		<style>
 			.github-fork-ribbon:before {
@@ -48,19 +29,11 @@
 		</style>
 	</head>
 	<body>
-	  <article class="markdown-body">
+<article class="markdown-body">
 
 {% include "posts/"+ article.getFileName() %}
 	    
-	  </article>
-	  <footer>
-	    <a href="{{url_for('module_blog.article',name=article.getPrivious())}}">
-	      {% if not article.getPrivious() %} No more {% else %} Privious {% endif %}
-	    </a>
-	    <a href="{{url_for('module_blog.article',name=article.getNext())}}">
-	      {% if not article.getNext() %} No more {% else %} Next {% endif %}
-	    </a>
-	  </footer>
+</article>
 		<a class="github-fork-ribbon" href="{{url_for('module_blog.index')}}" data-ribbon="Back to article list" title="Back to article list">Back to article list</a>
 	</body>
 </html>
