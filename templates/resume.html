@@ -18,14 +18,19 @@
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{{url_for('static',filename='css/resume.css')}}" rel="stylesheet" />
 	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css">
+        <style>
+          .github-fork-ribbon:before {
+              background-color: #121612;
+          }
+        </style>
     </head>
     <body id="page-top">
         <!-- Navigation-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
             <a class="navbar-brand js-scroll-trigger" href="{{url_for('index')}}">
                 <span class="d-block d-lg-none text-warning">Cheng Huang</span>
-                <span class="d-none d-lg-block"><img class="img-fluid img-profile rounded-circle mx-auto mb-2" src="{{url_for('static',filename='assets/img/profile.jpg')}}" alt="..." /></span>
+                <span class="d-none d-lg-block"><img class="img-fluid img-profile rounded-circle mx-auto mb-2" src="{{url_for('static',filename='assets/img/profile.jpg')}}" alt="profile" /></span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarResponsive">
@@ -255,5 +260,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="{{url_for('static',filename='js/resume.js')}}"></script>
 	<script>feather.replace()</script>
+	<a class="github-fork-ribbon" href="{{url_for('index')}}" data-ribbon="Back to main page" title="Back to main page"></a>
     </body>
 </html>

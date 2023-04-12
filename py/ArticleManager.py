@@ -82,7 +82,8 @@ class Article():
                 break
             previous = article_j['file']
 
-        current.setRelative(previous,next)
+        if current:
+            current.setRelative(previous,next)
         return current
 
     @staticmethod
