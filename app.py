@@ -20,7 +20,7 @@ from flask_login import current_user
 
 from py.EmailMe import EmailMe
 from py.LoginUser import User
-from py.MemberController import *
+# from py.MemberController import *
 
 # initialize app
 app = Flask(__name__)
@@ -35,6 +35,8 @@ from wx import module_wx
 app.register_blueprint(module_wx)
 from blog import module_blog
 app.register_blueprint(module_blog)
+from video import module_video
+app.register_blueprint(module_video)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -43,8 +45,7 @@ emailMe = EmailMe('smtp.qq.com',465)
 
 @app.teardown_request
 def teardown_request(exception=None):
-    print('this runs after request') 
-
+    pass
 
 @app.route('/')
 def root():
@@ -90,49 +91,15 @@ def signup():
 
 
 # member management
-@app.route('/member', methods=['GET', 'POST'])
-def member():
-    member_controller=MemberController(request)
-    try:
-        html = member_controller.handle_request()
-    except InvalidMethod as e:
-        return str(e.args)
-    else:
-        return html
-
-@app.route('/upload/post/<filename>', methods=['PUT'])
-def upload_post(filename):
-    print(request.data)
-    return "None"
-
-# play video
-@app.route('/live')
-@flask_login.login_required
-def live():
-    return render_template('live.html')
-
-# access playlist and segment files
-@app.route('/live/<filename>', methods=['GET','PUT'])
-def uploaded_file(filename):
-    if request.method == 'PUT':
-        # Record IP
-        app.config['IP'] = request.remote_addr
-        # Delete file
-        dot_index = filename.find('.')
-        postfix = filename[dot_index+1:]
-        if postfix == 'ts':
-            number = int(filename[8:dot_index])
-            if number >= app.config['TS_NUMBER']:
-                deletefile = 'playlist'+str(number - app.config['TS_NUMBER'])+'.ts'
-                deletepath = os.path.join(app.config['LIVE_FOLD'],deletefile)
-                os.remove(deletepath)
-				
-        filepath = os.path.join(app.config['LIVE_FOLD'],filename)
-        with open(filepath,mode='wb') as file:
-            file.write(request.data)
-        return 'success'
-    else:
-        return send_from_directory(app.config['LIVE_FOLD'],filename)
+# @app.route('/member', methods=['GET', 'POST'])
+# def member():
+#     member_controller=MemberController(request)
+#     try:
+#         html = member_controller.handle_request()
+#     except InvalidMethod as e:
+#         return str(e.args)
+#     else:
+#         return html
 
 
 # This callback is used to reload the user object from the user ID stored in the session.
@@ -148,15 +115,6 @@ def album(name=None):
         return render_template('album.html')
     else:
         return send_file('album/'+name)
-
-@app.route('/controller/')
-@app.route('/controller/<command>')
-def controller(command=None):
-    if command is None:
-        return render_template('controller.html')
-    else:
-        app.logger.info(command)
-        return render_template('controller.html')
 
 @app.route('/resume')
 def resume():

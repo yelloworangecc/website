@@ -1,14 +1,16 @@
+<!--Template Name: video-->
+<!--Template Parameters: serial episodename-->
 <!doctype html>
 <html>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
-        <title>{{ article.title }}</title>
+        <title>{{ serial.name }}</title>
         <meta name="color-scheme" content="light dark">
         <link rel="stylesheet" href="{{url_for('static',filename='css/github-markdown.css')}}">
         <style>
             body {
-                    box-sizing: border-box;
+                box-sizing: border-box;
                 min-width: 200px;
                 max-width: 980px;
                 margin: 0 auto;
@@ -38,6 +40,15 @@
                     background-color: #0d1117;
                     }
             }
+
+            article {
+                text-align: center;
+            }
+
+            #episode{
+                margin-top: 50px;
+                text-align: center;
+            }
         </style>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css">
@@ -49,26 +60,36 @@
     </head>
     <body>
       <article class="markdown-body">
-            {% include "posts/"+ article.file %}
+          <video width="640" height="480" id="video" controls></video>
       </article>
-      
+
+      <div id="episode">{{ serial.addition }}</div>
       <footer>
         <div>
-        {% if article.previous %}
-        <a href="{{url_for('module_blog.article',name=article.previous)}}">Previous
+        {% if serial.previous %}
+        <a href="{{url_for('module_video.video',name=serial.previous,subname='None')}}">Previous
         {% else %}
-        <a href="{{url_for('module_blog.index')}}">No more
+        <a href="{{url_for('module_video.index')}}">No more
         {% endif %}
         </a>
 
-        {% if article.next %}
-        <a href="{{url_for('module_blog.article',name=article.next)}}">Next
+        {% if serial.next %}
+        <a href="{{url_for('module_video.video',name=serial.next,subname='None')}}">Next
         {% else %}
-        <a href="{{url_for('module_blog.index')}}">No more
+        <a href="{{url_for('module_video.index')}}">No more
         {% endif %}
         </a>
         </div>
       </footer>
-    	<a class="github-fork-ribbon" href="{{url_for('module_blog.index')}}" data-ribbon="Back to article list" title="Back to article list">Back to article list</a>
+      <a class="github-fork-ribbon" href="{{url_for('module_video.index')}}" data-ribbon="Back to video serial list" title="Back to video serial list">Back to video serial list</a>
+
+        <!-- HLS -->
+        {% from 'macros.html' import hls %}
+        {% if episodename == 'None' %}
+            {{ hls('/video/{}/{}/playlist.m3u8'.format(serial.file,serial.j['episode'][0])) }}
+        {% else %}
+            {{ hls('/video/{}/{}/playlist.m3u8'.format(serial.file,episodename)) }}
+        {% endif %}
     </body>
 </html>
+

@@ -13,7 +13,7 @@ def index():
         return '<h1>load articles failed</h1>'
 
     articles = Article.getPageList(0, current_app.config['BLOG_PER_PAGE'])
-    return render_template('blog.html',articles=articles)
+    return render_template('listpage.html',view_func='module_blog.article',itemList=articles)
 
 @module_blog.route('/<name>')
 def article(name):

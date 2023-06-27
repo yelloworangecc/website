@@ -1,33 +1,16 @@
 import json,datetime
+from .Item import Item
 
-class Article():
+class Article(Item):
     all_j = None
-    p = None
-    n = None
     def __init__(self, article_j):
-        self.article_j = article_j
-
-    def getFileName(self):
-        return self.article_j["file"]
-
-    def getTitle(self):
-        return self.article_j["title"]
-        
-    def getAbstract(self):
-        return self.article_j["abstract"]
-        
-    def getPostTime(self):
-        return self.article_j["time"]
-
-    def setRelative(self, p, n):
-        self.p = p
-        self.n = n
-
-    def getPrevious(self):
-        return self.p
-
-    def getNext(self):
-        return self.n
+        self.j = article_j
+        self.file = article_j["file"]
+        self.title = article_j["title"]
+        self.abstract = article_j["abstract"]
+        self.addition = article_j["time"]
+        self.p = None
+        self.n = None
 
     @staticmethod
     def load():
@@ -69,20 +52,21 @@ class Article():
     @staticmethod
     def get(name):
         Article.load()
-
-        previous = None
+        
         current = None
+        previous = None
         next = None
         for article_j in Article.all_j:
             if article_j['file'] == name:
                 current = Article(article_j)
                 continue
             if current and not next:
-                next = article_j['file']
+                next = article_j['file'] # only file name
                 break
-            previous = article_j['file']
+            previous = article_j['file'] # only file name
 
-        current.setRelative(previous,next)
+        current.previous = previous
+        current.next = next
         return current
 
     @staticmethod
@@ -94,9 +78,9 @@ class Article():
         
         article = Article.get(filename)
         if article:
-            article.article_j['title'] = title
-            article.article_j['abstract'] = abstract
-            article.article_j['time'] = time_str 
+            article.j['title'] = title
+            article.j['abstract'] = abstract
+            article.j['time'] = time_str 
         else:
             article_j = {}
             article_j['file'] = filename

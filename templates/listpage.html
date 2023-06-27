@@ -1,0 +1,62 @@
+<!-- Template Name: listpage-->
+<!-- Template Parameters: current_user itemList view_func -->
+<!DOCTYPE html>
+<html lang="en">
+
+    <!-- Head-->
+    {% from 'macros.html' import head %}
+    {{ head('Home Page','grayscale') }}
+    
+    <body>
+
+        <!-- Navi-->
+        {% from 'macros.html' import navigation %}
+        {{ navigation(current_user) }}
+        
+        <!-- Header
+        <header class="masthead" style="background-image: {{ url_for('static',filename='assets/img/blog-bg.png') }} ">
+            <div class="container position-relative px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <div class="site-heading">
+                            <h1>Cheng's Blog</h1>
+                            <span class="subheading">Record and Make Mind Clean</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>-->
+
+        <!-- Section -->
+        <section class="signup-section" id="signup">
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-12 col-lg-10 col-xl-8">
+                    {% for item in itemList %}
+                    <!-- Post preview-->
+                    <div class="post-preview">
+                        <a href="{{ url_for(view_func,name=item.file,subname='None') }}">
+                            <h2 class="post-title">{{ item.title }}</h2>
+                            <h3 class="post-subtitle">{{ item.abstract }}</h3>
+                        </a>
+                        <p class="post-meta">
+                            {{ item.addition }}
+                        </p>
+                    </div>
+                    <!-- Divider-->
+                    <hr class="my-4" />
+                    {% endfor %}
+                    
+                    <!-- Pager-->
+                    <div class="d-flex justify-content-end mb-4"><a class="btn btn-primary text-uppercase" href="#!">Older Posts →</a></div>
+                </div>
+            </div>
+        </div>
+        </section>
+        
+        <!-- Footer -->
+        {% from 'macros.html' import footer %}
+        {{ footer('grayscale') }}
+    </body>
+</html>
+
