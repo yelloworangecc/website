@@ -1,4 +1,5 @@
 import os,time
+from cryptography.fernet import Fernet
 
 from flask import Flask
 from flask import render_template
@@ -8,7 +9,6 @@ from flask import request
 from flask import logging
 from flask import session
 from flask import redirect
-from flask import send_from_directory
 
 from werkzeug.utils import secure_filename
 
@@ -29,6 +29,7 @@ app.secret_key = os.getenv('SECRET_KEY') # must
 app.config['LIVE_FOLD'] = 'live/'
 app.config['IP'] = 'None'
 app.config['TS_NUMBER'] = 1000
+app.config['FERNET'] = Fernet(os.getenv("FERNET_KEY").encode())
 
 # regist blueprint
 from wx import module_wx

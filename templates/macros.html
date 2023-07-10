@@ -87,16 +87,17 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
         var video = document.getElementById('video');
+        source = '{{path}}'
         if (video.canPlayType('application/vnd.apple.mpegurl'))
         {
-            video.src = '{{path}}';
+            video.src = source;
         }
         else if (Hls.isSupported()) 
         {
             var hls = new Hls({
                 debug: false,
             });
-            hls.loadSource(path);
+            hls.loadSource(source);
             hls.attachMedia(video);
             hls.on(Hls.Events.MEDIA_ATTACHED, function () {
                 video.play();

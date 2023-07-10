@@ -1,6 +1,6 @@
 import os,io,re
 
-from flask import Blueprint,abort,request,render_template,current_app
+from flask import Blueprint,abort,request,render_template,current_app,send_from_directory
 from werkzeug.utils import secure_filename
 from py.VideoManager import VideoSerial
 
@@ -19,76 +19,115 @@ def index():
 @module_video.route('/<name>/<subname>')
 def video(name,subname):
     serial = VideoSerial.get(name)
-    if not video:
-        return abort(404)
-    return render_template('video.html',serial=serial,episodename=subname)
+    if not serial:
+        # serial not found
+        return '<h1>1</h1>' #abort(404)
+
+    if name != 'live' and subname == 'None':
+        if len(serial.j['episode']) == 0:
+            # episode not found
+            return '<h1>2</h1>'#abort(404)
+        else:
+            # get default episode
+            subname = serial.j['episode'][0]
+        
+    return render_template('video.html',serial=serial,episode=subname)
 
 # create a new video serial, also provide a create page
-@module_video.route('/videoserial',methods=['GET','POST'])
+@module_video.route('/videoserial/<serialname>',methods=['POST'])
 def videoserial(serialname):
-    if request.method == 'POST':
-        return 'OK'
-    return '''
-    <!doctype html>
-    <title>Create A New Video Serial</title>
-    <h1>Create A New Video Serial</h1>
-    <form method=post enctype=multipart/form-data>
-      <span>Serial Name</span>
-      <input type=text name=serialname>
-      <span>Description</span>
-      <input type=text name=description>
-      <input type=submit value=Submit>
-    </form>
-    '''
+    # check token 
+    try:
+        token=request.args["token"].encode()
+        data = current_app.config['FERNET'].decrypt(token,ttl=100)
+        print(data)
+        if current_app.secret_key.encode() != data:
+            return abort(403)
+    except:
+        return abort(403)
 
-# publish a new video to serial
-@module_video.route('/publish/<serialname>', methods=['GET', 'POST'])
+    # check args
+    name = request.args['name']
+    description = request.args['description']
+    if not name or not description:
+        return abort(406)
+
+    # create directory
+    directory = os.path.join(current_app.root_path, 'video', serialname)
+    os.mkdir(directory)
+
+    # check serial & add serial
+    if not VideoSerial.get(serialname):
+        VideoSerial.add(serialname, name, description)
+    return 'OK'
+
+
+@module_video.route('/publish/<serialname>', methods=['POST'])
 def publish(serialname):
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            return 'FAIL'
-        
-        file = request.files['file']
-        filename = secure_filename(file.filename)
+    # check token 
+    print(request.args)
+    try:
+        token=request.args['token'].encode()
+        data = current_app.config['FERNET'].decrypt(token,ttl=100)
+        if current_app.secret_key.encode() != data:
+            return abort(403)
+    except:
+        print('decrypt failed')
+        return abort(403)
 
-        content = file.read()
-        with open(os.path.join(current_app.root_path, 'video', filename),'wb') as fp:
-            fp.write(content)
-            
-        VideoSerial.add(serialname,filename,abstract)                
-        return 'OK'
-    return '''
-    <!doctype html>
-    <title>Upload Video</title>
-    <h1>Upload Video</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+    # check file
+    if 'file' not in request.files:
+        return abort(406)
+    file = request.files['file']
+    filename = secure_filename(file.filename)
+    nameOnly = filename.rsplit('.', 1)[0].lower()
+    
+    # check serial & add episode
+    serial = VideoSerial.get(serialname)
+    if not serial:
+        return abort(412)
+    if not serial.addEpisode(nameOnly):
+        return abort(404)
+
+    # save file
+    directory = os.path.join(current_app.root_path, 'video', serialname, nameOnly)
+    os.mkdir(directory)
+    filepath = os.path.join(directory, filename)
+    file.save(filepath)
+
+    os.system('ffmpeg -i {0} -vcodec copy -acodec copy -f segment -segment_list {1}/playlist.m3u8 -segment_time 10 {1}/%d.ts'.format(filepath,directory))
+    return 'OK'
+
+@module_video.route('/<serialname>/<filename>/<ts>')
+def ts(serialname,filename,ts):
+    return send_from_directory(os.path.join(current_app.root_path, 'video', serialname, filename),ts)
 
 # for upload and access hls playlist and segments
 @module_video.route('/live/<filename>', methods=['GET','PUT'])
 def uploaded_file(filename):
     if request.method == 'PUT':
         # Record IP
-        app.config['IP'] = request.remote_addr
+        current_app.config['IP'] = request.remote_addr
         # Delete file
         dot_index = filename.find('.')
         postfix = filename[dot_index+1:]
         if postfix == 'ts':
             number = int(filename[8:dot_index])
-            if number >= app.config['TS_NUMBER']:
-                deletefile = 'playlist'+str(number - app.config['TS_NUMBER'])+'.ts'
-                deletepath = os.path.join(app.config['LIVE_FOLD'],deletefile)
+            if number >= current_app.config['TS_NUMBER']:
+                deletefile = 'playlist'+str(number - current_app.config['TS_NUMBER'])+'.ts'
+                deletepath = os.path.join(current_app.config['LIVE_FOLD'],deletefile)
                 os.remove(deletepath)
                 
-        filepath = os.path.join(app.config['LIVE_FOLD'],filename)
+        filepath = os.path.join(current_app.config['LIVE_FOLD'],filename)
         with open(filepath,mode='wb') as file:
             file.write(request.data)
         return 'success'
     else:
-        return send_from_directory(app.config['LIVE_FOLD'],filename)
+        if filename == 'None':
+            serial = VideoSerial.get('live')
+            return render_template('video.html',serial=serial,episode='None')
+        else:
+            return send_from_directory(current_app.config['LIVE_FOLD'],filename)
 
 # for delete old segment
 @module_video.route('/live/<filename>', methods=['DELETE'])

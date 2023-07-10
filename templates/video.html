@@ -1,5 +1,5 @@
 <!--Template Name: video-->
-<!--Template Parameters: serial episodename-->
+<!--Template Parameters: serial episode-->
 <!doctype html>
 <html>
     <head>
@@ -63,7 +63,11 @@
           <video width="640" height="480" id="video" controls></video>
       </article>
 
-      <div id="episode">{{ serial.addition }}</div>
+      <div id="episode">
+            {% for item in serial.j["episode"] %}
+            <a href="{{ url_for('module_video.video',name=serial.file,subname=item) }}">{{ item }}</a>
+            {% endfor %}
+      </div>
       <footer>
         <div>
         {% if serial.previous %}
@@ -85,10 +89,10 @@
 
         <!-- HLS -->
         {% from 'macros.html' import hls %}
-        {% if episodename == 'None' %}
-            {{ hls('/video/{}/{}/playlist.m3u8'.format(serial.file,serial.j['episode'][0])) }}
+        {% if episode == 'None' %}
+            {{ hls('/video/{}/playlist.m3u8'.format(serial.file)) }}
         {% else %}
-            {{ hls('/video/{}/{}/playlist.m3u8'.format(serial.file,episodename)) }}
+            {{ hls('/video/{}/{}/playlist.m3u8'.format(serial.file,episode)) }}
         {% endif %}
     </body>
 </html>

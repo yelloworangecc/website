@@ -40,7 +40,13 @@
                             <h3 class="post-subtitle">{{ item.abstract }}</h3>
                         </a>
                         <p class="post-meta">
-                            {{ item.addition }}
+                            {% if item.addition %}
+                                {{ item.addition }}
+                            {% else %}
+                                {% for subitem in item.j["episode"] %}
+                                <a href="{{ url_for(view_func,name=item.file,subname=subitem) }}">{{ subitem }}</a>
+                                {% endfor %}
+                            {% endif %}
                         </p>
                     </div>
                     <!-- Divider-->

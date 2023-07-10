@@ -5,18 +5,17 @@ class VideoSerial(Item):
     all_j = None
     def __init__(self, serial_j):
         self.j = serial_j
-        self.file = serial_j["name"]
+        self.file = serial_j["file"]
         self.title = serial_j["name"]
         self.abstract = serial_j["description"]
-        self.addition = "".join(serial_j["episode"])
-        self.p = None
-        self.n = None
+        self.addition = None
 
-    def add(self,episode):
-        if episode not in self.j["episode"]:
-            self.j["episode"].append(episode)
-            self.addition = "".join(self.j["episode"])
-        return None
+    def addEpisode(self,name):
+        if name not in self.j["episode"]:
+            self.j["episode"].append(name)
+            VideoSerial.save()
+            return True
+        return False
 
     @staticmethod
     def load():
@@ -52,24 +51,23 @@ class VideoSerial(Item):
     def save():
         with open('json/VideoSerials.json','w',encoding='utf8') as fp:
             json.dump(VideoSerial.all_j,fp)
-            
         return None
 
     @staticmethod
-    def get(name):
+    def get(file):
         VideoSerial.load()
         
         current = None
         previous = None
         next = None
         for item_j in VideoSerial.all_j:
-            if item_j['name'] == name:
+            if item_j['file'] == file:
                 current = VideoSerial(item_j)
                 continue
             if current and not next:
-                next = item_j['name'] # only serial name
+                next = item_j['file']
                 break
-            previous = item_j['name'] # only serial name
+            previous = item_j['file']
 
         current.previous = previous
         current.next = next
@@ -77,14 +75,16 @@ class VideoSerial(Item):
 
     # add a new serial
     @staticmethod
-    def add(name,description):
+    def add(file,name,description):
         VideoSerial.load()
         
-        serial = VideoSerial.get(name)
+        serial = VideoSerial.get(file)
         if serial:
+            serial.j['name'] = name
             serial.j['description'] = description
         else:
             serial_j = {}
+            serial_j['file'] = file
             serial_j['name'] = name
             serial_j['description'] = description
             VideoSerial.all_j.append(serial_j)

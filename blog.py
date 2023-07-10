@@ -3,9 +3,8 @@ import os,io,re
 from flask import Blueprint,abort,request,render_template,current_app
 from werkzeug.utils import secure_filename
 from py.ArticleManager import Article
-from cryptography.fernet import Fernet
 
-f = Fernet(os.getenv("FERNET_KEY").encode())
+# f = Fernet(os.getenv("FERNET_KEY").encode())
 module_blog = Blueprint('module_blog', __name__, url_prefix='/blog')
 current_app.config['BLOG_PER_PAGE'] = 5
 
@@ -27,9 +26,9 @@ def article(name):
 @module_blog.route('/publish', methods=['POST'])
 def publish():
     try:
-        token=request.args["token"].encode()
-        data = f.decrypt(token,ttl=100)
-        if os.getenv("SECRET_KEY").encode() != data:
+        token=request.args['token'].encode()
+        data = current_app.config['FERNET'].decrypt(token,ttl=100)
+        if current_app.secret_key.encode() != data:
             return abort(403)
     except:
         return abort(403)
@@ -58,9 +57,6 @@ def publish():
             else:
                 multiline = multiline + ' ' + line
                 
-        #print(filename)
-        #print(title)
-        #print(abstract)
         Article.add(filename,title,abstract)                
         return 'OK'
     return abort(406)

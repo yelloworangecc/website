@@ -9,8 +9,6 @@ class Article(Item):
         self.title = article_j["title"]
         self.abstract = article_j["abstract"]
         self.addition = article_j["time"]
-        self.p = None
-        self.n = None
 
     @staticmethod
     def load():
@@ -61,9 +59,9 @@ class Article(Item):
                 current = Article(article_j)
                 continue
             if current and not next:
-                next = article_j['file'] # only file name
+                next = article_j['file']
                 break
-            previous = article_j['file'] # only file name
+            previous = article_j['file']
 
         current.previous = previous
         current.next = next
