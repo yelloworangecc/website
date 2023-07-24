@@ -1,4 +1,4 @@
-import os,io,re
+import os,io,re,time
 
 from flask import Blueprint,abort,request,render_template,current_app,send_from_directory
 from werkzeug.utils import secure_filename
@@ -21,12 +21,12 @@ def video(name,subname):
     serial = VideoSerial.get(name)
     if not serial:
         # serial not found
-        return '<h1>1</h1>' #abort(404)
+        return abort(404)
 
     if name != 'live' and subname == 'None':
-        if len(serial.j['episode']) == 0:
+        if 'episode' not in serial.j or len(serial.j['episode']) == 0:
             # episode not found
-            return '<h1>2</h1>'#abort(404)
+            return abort(404)
         else:
             # get default episode
             subname = serial.j['episode'][0]
@@ -34,8 +34,8 @@ def video(name,subname):
     return render_template('video.html',serial=serial,episode=subname)
 
 # create a new video serial, also provide a create page
-@module_video.route('/videoserial/<serialname>',methods=['POST'])
-def videoserial(serialname):
+@module_video.route('/serial',methods=['POST'])
+def videoserial():
     # check token 
     try:
         token=request.args["token"].encode()
@@ -47,18 +47,20 @@ def videoserial(serialname):
         return abort(403)
 
     # check args
+    f = request.args['file']
     name = request.args['name']
     description = request.args['description']
     if not name or not description:
         return abort(406)
 
     # create directory
-    directory = os.path.join(current_app.root_path, 'video', serialname)
-    os.mkdir(directory)
+    directory = os.path.join(current_app.root_path, 'video', f)
+    if not os.path.exists(directory):
+        os.mkdir(directory)
 
     # check serial & add serial
-    if not VideoSerial.get(serialname):
-        VideoSerial.add(serialname, name, description)
+    if not VideoSerial.get(f):
+        VideoSerial.add(f, name, description)
     return 'OK'
 
 
@@ -96,6 +98,7 @@ def publish(serialname):
     file.save(filepath)
 
     os.system('ffmpeg -i {0} -vcodec copy -acodec copy -f segment -segment_list {1}/playlist.m3u8 -segment_time 10 {1}/%d.ts'.format(filepath,directory))
+    time.sleep(1) # make sure the m3u8 updated 
     return 'OK'
 
 @module_video.route('/<serialname>/<filename>/<ts>')

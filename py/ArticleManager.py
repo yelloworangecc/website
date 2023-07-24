@@ -63,8 +63,10 @@ class Article(Item):
                 break
             previous = article_j['file']
 
-        current.previous = previous
-        current.next = next
+        if current:
+            current.previous = previous
+            current.next = next
+
         return current
 
     @staticmethod

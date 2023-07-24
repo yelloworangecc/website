@@ -11,6 +11,10 @@ class VideoSerial(Item):
         self.addition = None
 
     def addEpisode(self,name):
+        # create episode list
+        if "episode" not in self.j:
+            self.j["episode"]=[]
+        # append one episode
         if name not in self.j["episode"]:
             self.j["episode"].append(name)
             VideoSerial.save()
@@ -69,8 +73,10 @@ class VideoSerial(Item):
                 break
             previous = item_j['file']
 
-        current.previous = previous
-        current.next = next
+        if current:
+            current.previous = previous
+            current.next = next
+
         return current
 
     # add a new serial
