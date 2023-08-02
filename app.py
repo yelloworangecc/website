@@ -26,7 +26,6 @@ from py.LoginUser import User
 app = Flask(__name__)
 app.app_context().push()
 app.secret_key = os.getenv('SECRET_KEY') # must
-app.config['LIVE_FOLD'] = 'live/'
 app.config['IP'] = 'None'
 app.config['TS_NUMBER'] = 1000
 app.config['FERNET'] = Fernet(os.getenv("FERNET_KEY").encode())

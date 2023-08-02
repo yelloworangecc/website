@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from py.VideoManager import VideoSerial
 
 module_video = Blueprint('module_video', __name__, url_prefix='/video')
+current_app.config['LIVE_FOLD'] = 'video/live/'
 current_app.config['VIDEO_SERIAL_PER_PAGE'] = 5
 
 @module_video.route('/index')
@@ -133,6 +134,10 @@ def uploaded_file(filename):
             return send_from_directory(current_app.config['LIVE_FOLD'],filename)
 
 # for delete old segment
-@module_video.route('/live/<filename>', methods=['DELETE'])
+@module_video.route('/<filename>', methods=['DELETE'])
 def delete_segment(filename):
-    pass
+    slash_index = filename.find('\\')
+    truename = filename[slash_index+1:]
+    filepath = os.path.join(current_app.config['LIVE_FOLD'],truename)
+    print(filepath)
+    return 'success'
