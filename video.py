@@ -112,15 +112,15 @@ def uploaded_file(filename):
     if request.method == 'PUT':
         # Record IP
         current_app.config['IP'] = request.remote_addr
-        # Delete file
-        dot_index = filename.find('.')
-        postfix = filename[dot_index+1:]
-        if postfix == 'ts':
-            number = int(filename[8:dot_index])
-            if number >= current_app.config['TS_NUMBER']:
-                deletefile = 'playlist'+str(number - current_app.config['TS_NUMBER'])+'.ts'
-                deletepath = os.path.join(current_app.config['LIVE_FOLD'],deletefile)
-                os.remove(deletepath)
+        # Delete file (no need anymore, controled by video source)
+        # dot_index = filename.find('.')
+        # postfix = filename[dot_index+1:]
+        # if postfix == 'ts':
+        #     number = int(filename[8:dot_index])
+        #     if number >= current_app.config['TS_NUMBER']:
+        #         deletefile = 'playlist'+str(number - current_app.config['TS_NUMBER'])+'.ts'
+        #         deletepath = os.path.join(current_app.config['LIVE_FOLD'],deletefile)
+        #         os.remove(deletepath)
                 
         filepath = os.path.join(current_app.config['LIVE_FOLD'],filename)
         with open(filepath,mode='wb') as file:
@@ -139,5 +139,5 @@ def delete_segment(filename):
     slash_index = filename.find('\\')
     truename = filename[slash_index+1:]
     filepath = os.path.join(current_app.config['LIVE_FOLD'],truename)
-    print(filepath)
+    os.remove(filepath)
     return 'success'
