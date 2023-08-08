@@ -46,16 +46,20 @@ def publish():
         content = io.StringIO(content)
         while True:
             line = content.readline().strip()
-            print(line)
+            multiline = None
             if line[0] == '<' and line[1] == 'h' and line[2] == '1':
                 title = re.search('>.*<',line).group()[1:-1]
             elif line[0] == '<' and line[1] == 'p':
                 multiline = line
             elif line[0] == '<' and line[1] == 'h' and line[2] == '2':
-                abstract = re.search('>.*<',multiline).group()[1:-1]
+                if multiline:
+                    abstract = re.search('>.*<',multiline).group()[1:-1]
+                else:
+                    abstract = title
                 break
             else:
-                multiline = multiline + ' ' + line
+                if multiline:
+                    multiline = multiline + ' ' + line
                 
         Article.add(filename,title,abstract)                
         return 'OK'

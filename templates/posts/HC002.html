@@ -1,0 +1,144 @@
+<h1 id="live-video-over-hls">Live Video Over HLS</h1>
+<p>Live video over HLS</p>
+<h2 id="front-end">Front End</h2>
+<p>Use HLS.js to play hls video segments:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>{ % macro hls(path) % }</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&lt;!-- HLS param /live/playlist.m3u8 --&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;script</span> <span class="er">src</span><span class="ot">=</span><span class="st">&quot;https://cdn.jsdelivr.net/npm/hls.js@latest&quot;</span><span class="kw">&gt;&lt;/script&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;script&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">var</span> video <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">&#39;video&#39;</span>)<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        source <span class="op">=</span> <span class="st">&#39;{ {path} }&#39;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (video<span class="op">.</span><span class="fu">canPlayType</span>(<span class="st">&#39;application/vnd.apple.mpegurl&#39;</span>))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            video<span class="op">.</span><span class="at">src</span> <span class="op">=</span> source<span class="op">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span> <span class="cf">if</span> (Hls<span class="op">.</span><span class="fu">isSupported</span>()) </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            <span class="kw">var</span> hls <span class="op">=</span> <span class="kw">new</span> <span class="fu">Hls</span>({</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                <span class="dt">debug</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            })<span class="op">;</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>            hls<span class="op">.</span><span class="fu">loadSource</span>(source)<span class="op">;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            hls<span class="op">.</span><span class="fu">attachMedia</span>(video)<span class="op">;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            hls<span class="op">.</span><span class="fu">on</span>(Hls<span class="op">.</span><span class="at">Events</span><span class="op">.</span><span class="at">MEDIA_ATTACHED</span><span class="op">,</span> <span class="kw">function</span> () {</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                video<span class="op">.</span><span class="fu">play</span>()<span class="op">;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>            })<span class="op">;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/script&gt;</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>{ % endmacro % }</span></code></pre></div>
+<h2 id="back-end">Back End</h2>
+<p>Provide an interface for both uploading files and access files:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for upload and access live playlist and segments</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">@module_video.route</span>(<span class="st">&#39;/live/&lt;filename&gt;&#39;</span>, methods<span class="op">=</span>[<span class="st">&#39;GET&#39;</span>,<span class="st">&#39;PUT&#39;</span>])</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> uploaded_file(filename):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> request.method <span class="op">==</span> <span class="st">&#39;PUT&#39;</span>:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> filename.find(<span class="st">&#39;.m3u8&#39;</span>) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            <span class="co"># record ip</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            current_app.config[<span class="st">&#39;IP&#39;</span>] <span class="op">=</span> request.remote_addr</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>            <span class="co"># check token</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span>:</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                token<span class="op">=</span>request.args[<span class="st">&#39;token&#39;</span>].encode()</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                data <span class="op">=</span> current_app.config[<span class="st">&#39;FERNET&#39;</span>].decrypt(token,ttl<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> current_app.secret_key.encode() <span class="op">!=</span> data:</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">return</span> abort(<span class="dv">403</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">except</span>:</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">&#39;decrypt failed&#39;</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> abort(<span class="dv">403</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># save files</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        filepath <span class="op">=</span> os.path.join(current_app.config[<span class="st">&#39;LIVE_FOLD&#39;</span>],filename)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="bu">open</span>(filepath,mode<span class="op">=</span><span class="st">&#39;wb&#39;</span>) <span class="im">as</span> <span class="bu">file</span>:</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            <span class="bu">file</span>.write(request.data)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&#39;success&#39;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> filename <span class="op">==</span> <span class="st">&#39;None&#39;</span>:</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>            serial <span class="op">=</span> VideoSerial.get(<span class="st">&#39;live&#39;</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> render_template(<span class="st">&#39;video.html&#39;</span>,serial<span class="op">=</span>serial,episode<span class="op">=</span><span class="st">&#39;None&#39;</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> send_from_directory(current_app.config[<span class="st">&#39;LIVE_FOLD&#39;</span>],filename)</span></code></pre></div>
+<p>Provide an interface for deleting old hls segments:</p>
+<pre><code># for delete old segment
+@module_video.route(&#39;/&lt;filename&gt;&#39;, methods=[&#39;DELETE&#39;])
+def delete_segment(filename):
+    slash_index = filename.find(&#39;\\&#39;)
+    truename = filename[slash_index+1:]
+    filepath = os.path.join(current_app.config[&#39;LIVE_FOLD&#39;],truename)
+    os.remove(filepath)
+    return &#39;success&#39;
+</code></pre>
+<h2 id="video-source">Video Source</h2>
+<p>Use FFMpeg to list devices:</p>
+<pre><code>ffmpeg -list_devices true -f dshow -i dummy
+</code></pre>
+<p>An example to push HLS segments:</p>
+<pre><code>ffmpeg -r 1 -loop 1 -i ~/bin/bg-masthead.jpg -f dshow -i audio=&quot;Microphone Array (Intel® Smart Sound Technology for Digital Microphones)&quot; -c:v libx264 -g 2 -crf 10 -preset ultrafast -c:a aac -b:a 128K -f hls -hls_time 2 -hls_list_size 2 -hls_flags delete_segments+split_by_time -method PUT http://$IP/video/live/playlist.m3u8?token=$token
+</code></pre>
+<p>For save network traffic, here I only record live audio, the video is
+composed by a static picture.</p>
+<p>Below table show some explanation about ffmpeg command options:</p>
+<table>
+<thead>
+<tr class="header">
+<th>options</th>
+<th>descriptions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code class="verbatim">-r</code></td>
+<td>frame rate (input only)</td>
+</tr>
+<tr class="even">
+<td><code class="verbatim">-loop</code></td>
+<td>loop switch (0 or 1)</td>
+</tr>
+<tr class="odd">
+<td><code class="verbatim">-i</code></td>
+<td>input file url</td>
+</tr>
+<tr class="even">
+<td><code class="verbatim">-f</code></td>
+<td>input output file format</td>
+</tr>
+<tr class="odd">
+<td><code class="verbatim">-c:v</code></td>
+<td>video codec</td>
+</tr>
+<tr class="even">
+<td><code class="verbatim">-g</code></td>
+<td>group of pictures (frame rate * segment time)</td>
+</tr>
+<tr class="odd">
+<td><code class="verbatim">-crf</code></td>
+<td>Constanth Rate Factor (h264 related)</td>
+</tr>
+<tr class="even">
+<td><code class="verbatim">-preset</code></td>
+<td>h264 presets (ultrafast, superfast…)</td>
+</tr>
+<tr class="odd">
+<td><code class="verbatim">-c:a</code></td>
+<td>audio codec</td>
+</tr>
+<tr class="even">
+<td><code class="verbatim">-b:a</code></td>
+<td>audio bitrate</td>
+</tr>
+<tr class="odd">
+<td><code class="verbatim">-hls_time</code></td>
+<td>hls segment time</td>
+</tr>
+<tr class="even">
+<td><code class="verbatim">-hls_list_size</code></td>
+<td>hls segment number kept in m3u8</td>
+</tr>
+<tr class="odd">
+<td><code class="verbatim">-hls_flags</code></td>
+<td>additional hls flags</td>
+</tr>
+<tr class="even">
+<td><code class="verbatim">-method</code></td>
+<td>http method</td>
+</tr>
+</tbody>
+</table>

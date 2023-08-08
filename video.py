@@ -41,7 +41,7 @@ def videoserial():
     try:
         token=request.args["token"].encode()
         data = current_app.config['FERNET'].decrypt(token,ttl=100)
-        print(data)
+        # print(data)
         if current_app.secret_key.encode() != data:
             return abort(403)
     except:
@@ -94,7 +94,8 @@ def publish(serialname):
 
     # save file
     directory = os.path.join(current_app.root_path, 'video', serialname, nameOnly)
-    os.mkdir(directory)
+    if not os.path.exists(directory):
+        os.mkdir(directory)
     filepath = os.path.join(directory, filename)
     file.save(filepath)
 
@@ -126,7 +127,10 @@ def uploaded_file(filename):
                 return abort(403)
     
         # save files
-        filepath = os.path.join(current_app.config['LIVE_FOLD'],filename)
+        directory = current_app.config['LIVE_FOLD']
+        filepath = os.path.join(directory,filename)
+        if not os.path.exists(directory):
+            os.mkdir(directory)
         with open(filepath,mode='wb') as file:
             file.write(request.data)
         return 'success'
@@ -143,5 +147,6 @@ def delete_segment(filename):
     slash_index = filename.find('\\')
     truename = filename[slash_index+1:]
     filepath = os.path.join(current_app.config['LIVE_FOLD'],truename)
-    os.remove(filepath)
+    if not os.path.exists(filepath):
+        os.remove(filepath)
     return 'success'

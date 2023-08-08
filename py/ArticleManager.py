@@ -74,7 +74,7 @@ class Article(Item):
         Article.load()
         
         time_str = str(datetime.datetime.now())
-        print(time_str)
+        # print(time_str)
         
         article = Article.get(filename)
         if article:
