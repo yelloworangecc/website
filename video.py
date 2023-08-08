@@ -64,11 +64,11 @@ def videoserial():
         VideoSerial.add(f, name, description)
     return 'OK'
 
-
+# publish a video to serial
 @module_video.route('/publish/<serialname>', methods=['POST'])
 def publish(serialname):
     # check token 
-    print(request.args)
+    # print(request.args)
     try:
         token=request.args['token'].encode()
         data = current_app.config['FERNET'].decrypt(token,ttl=100)
@@ -102,26 +102,30 @@ def publish(serialname):
     time.sleep(1) # make sure the m3u8 updated 
     return 'OK'
 
+# get playlist and ts files for a serial
 @module_video.route('/<serialname>/<filename>/<ts>')
 def ts(serialname,filename,ts):
     return send_from_directory(os.path.join(current_app.root_path, 'video', serialname, filename),ts)
 
-# for upload and access hls playlist and segments
+# for upload and access live playlist and segments
 @module_video.route('/live/<filename>', methods=['GET','PUT'])
 def uploaded_file(filename):
     if request.method == 'PUT':
-        # Record IP
-        current_app.config['IP'] = request.remote_addr
-        # Delete file (no need anymore, controled by video source)
-        # dot_index = filename.find('.')
-        # postfix = filename[dot_index+1:]
-        # if postfix == 'ts':
-        #     number = int(filename[8:dot_index])
-        #     if number >= current_app.config['TS_NUMBER']:
-        #         deletefile = 'playlist'+str(number - current_app.config['TS_NUMBER'])+'.ts'
-        #         deletepath = os.path.join(current_app.config['LIVE_FOLD'],deletefile)
-        #         os.remove(deletepath)
-                
+        if filename.find('.m3u8') > 0:
+            # record ip
+            current_app.config['IP'] = request.remote_addr
+            
+            # check token
+            try:
+                token=request.args['token'].encode()
+                data = current_app.config['FERNET'].decrypt(token,ttl=100)
+                if current_app.secret_key.encode() != data:
+                    return abort(403)
+            except:
+                print('decrypt failed')
+                return abort(403)
+    
+        # save files
         filepath = os.path.join(current_app.config['LIVE_FOLD'],filename)
         with open(filepath,mode='wb') as file:
             file.write(request.data)
