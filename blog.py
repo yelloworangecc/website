@@ -44,9 +44,10 @@ def publish():
             fp.write(content)
             
         content = io.StringIO(content)
+        multiline = None
         while True:
             line = content.readline().strip()
-            multiline = None
+            
             if line[0] == '<' and line[1] == 'h' and line[2] == '1':
                 title = re.search('>.*<',line).group()[1:-1]
             elif line[0] == '<' and line[1] == 'p':

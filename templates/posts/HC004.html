@@ -1,0 +1,385 @@
+<h1 id="cpp-idioms-1">Cpp Idioms 1</h1>
+<p>More C++ Idioms 的读书笔记（1）。</p>
+<h2 id="address-of">Address Of</h2>
+<p>目的：为了解决重载&amp;可能引起的问题。</p>
+<pre><code>class nonaddressable
+{
+public:
+    typedef double useless_type;
+private:
+    useless_type operator&amp;() const;
+};
+
+int main()
+{
+    nonaddressable na;
+    nonaddressable * naptr = &amp;na; // Compiler error here.
+}
+</code></pre>
+<p>解决方案：用一系列的cast转换来找到一个对象的地址。</p>
+<pre><code>template &lt;class T&gt;
+T * addressof(T &amp; v)
+{
+    return reinterpret_cast&lt;T *&gt;(&amp; const_cast&lt;char&amp;&gt;(reinterpret_cast&lt;const volatile char &amp;&gt;(v)));
+}
+
+int main()
+{
+    nonaddressable na;
+    nonaddressable * naptr = addressof(na); // No more compiler error.
+}
+
+</code></pre>
+<p>已经包含在C++11中,下面是使用C++11标准库函数的例子。</p>
+<pre><code>// addressof example
+#include &lt;iostream&gt;
+#include &lt;memory&gt;
+
+struct unreferenceable {
+  int x;
+  unreferenceable* operator&amp;() { return nullptr; }
+};
+
+void print (unreferenceable* m) {
+  if (m) std::cout &lt;&lt; m-&gt;x &lt;&lt; &#39;\n&#39;;
+  else std::cout &lt;&lt; &quot;[null pointer]\n&quot;;
+}
+
+int main () {
+  void(*pfn)(unreferenceable*) = std::addressof(print);
+
+  unreferenceable val {10};
+  unreferenceable* foo = &amp;val;
+  unreferenceable* bar = std::addressof(val);
+
+  (*pfn)(foo);   // prints [null pointer]
+  (*pfn)(bar);   // prints 10
+
+  return 0;
+}
+</code></pre>
+<h2 id="algebraic-hierarchy">Algebraic Hierarchy</h2>
+<p>目的：将紧密相关的代数抽象隐藏在单个通用抽象后，达到如下的代码效果（通用变量可以看作是具体变量的标签而不是变量地址的别名）。</p>
+<pre><code>Number n1 = Complex (1, 2); // Label n1 for a complex number
+Number n2 = Real (10); // Label n2 for a real number
+Number n3 = n1 + n2; // Result of addition is labelled n3
+Number n2 = n3; // Re-labelling
+</code></pre>
+<p>解决方案：</p>
+<pre><code>#include &lt;iostream&gt;
+
+struct BaseConstructor { BaseConstructor(int=0) {} };
+class RealNumber;
+class Complex;
+class Number;
+
+class Number
+{
+    friend class RealNumber;
+    friend class Complex;
+
+public:
+    Number &amp; operator = (const Number &amp;n);
+    Number (const Number &amp;n);
+    virtual ~Number();
+    virtual Number operator + (Number const &amp;n) const;
+    void swap (Number &amp;n) throw ();
+    static Number makeReal (double r);
+    static Number makeComplex (double rpart, double ipart);
+
+protected:
+    Number ();
+    Number (BaseConstructor);
+
+private:
+    void redefine (Number *n);
+    virtual Number complexAdd (Complex const &amp;n) const;
+    virtual Number realAdd (RealNumber const &amp;n) const;
+    Number *rep;
+    short referenceCount;
+};
+
+class Complex : public Number
+{
+    friend class RealNumber;
+    friend class Number;
+    Complex (double d, double e);
+    Complex (const Complex &amp;c);
+    virtual ~Complex ();
+    virtual Number operator + (Number const &amp;n) const;
+    virtual Number realAdd (RealNumber const &amp;n) const;
+    virtual Number complexAdd (Complex const &amp;n) const;
+    double rpart, ipart;
+};
+
+class RealNumber : public Number
+{
+    friend class Complex;
+    friend class Number;
+    RealNumber (double r);
+    RealNumber (const RealNumber &amp;r);
+    virtual ~RealNumber ();
+    virtual Number operator + (Number const &amp;n) const;
+    virtual Number realAdd (RealNumber const &amp;n) const;
+    virtual Number complexAdd (Complex const &amp;n) const;
+    double val;
+};
+
+/// Used only by the letters.
+Number::Number (BaseConstructor)
+: rep (0), referenceCount (1)
+{}
+
+/// Used by static factory functions.
+Number::Number ()
+: rep (0), referenceCount (0)
+{}
+
+/// Used by user and static factory functions.
+Number::Number (const Number &amp;n)
+: rep (n.rep), referenceCount (0)
+{
+    std::cout &lt;&lt; &quot;Constructing a Number using Number::Number&quot; &lt;&lt; std::endl;
+    if (n.rep) n.rep-&gt;referenceCount++;
+}
+
+Number Number::makeReal (double r)
+{
+    Number n;
+    n.redefine (new RealNumber (r));
+    return n;
+}
+
+Number Number::makeComplex (double rpart, double ipart)
+{
+    Number n;
+    n.redefine (new Complex (rpart, ipart));
+    return n;
+}
+
+Number::~Number()
+{
+    if (rep &amp;&amp; --rep-&gt;referenceCount == 0)
+    delete rep;
+}
+
+Number &amp; Number::operator = (const Number &amp;n)
+{
+    std::cout &lt;&lt; &quot;Assigning a Number using Number::operator=&quot; &lt;&lt; std::endl;
+    Number temp (n);
+    this-&gt;swap (temp);
+    return *this;
+}
+
+void Number::swap (Number &amp;n) throw ()
+{
+    std::swap (this-&gt;rep, n.rep);
+}
+
+Number Number::operator + (Number const &amp;n) const
+{
+    return rep-&gt;operator + (n);
+}
+
+Number Number::complexAdd (Complex const &amp;n) const
+{
+    return rep-&gt;complexAdd (n);
+}
+
+Number Number::realAdd (RealNumber const &amp;n) const
+{
+    return rep-&gt;realAdd (n);
+}
+
+void Number::redefine (Number *n)
+{
+    if (rep &amp;&amp; --rep-&gt;referenceCount == 0)
+    delete rep;
+    rep = n;
+}
+
+Complex::Complex (double d, double e)
+: Number (BaseConstructor()), rpart (d), ipart (e)
+{
+    std::cout &lt;&lt; &quot;Constructing a Complex&quot; &lt;&lt; std::endl;
+}
+
+Complex::Complex (const Complex &amp;c)
+: Number (BaseConstructor()), rpart (c.rpart), ipart (c.ipart)
+{
+    std::cout &lt;&lt; &quot;Constructing a Complex using Complex::Complex&quot; &lt;&lt; std::endl;
+}
+
+Complex::~Complex()
+{
+    std::cout &lt;&lt; &quot;Inside Complex::~Complex()&quot; &lt;&lt; std::endl;
+}
+
+Number Complex::operator + (Number const &amp;n) const
+{
+    return n.complexAdd (*this);
+}
+
+Number Complex::realAdd (RealNumber const &amp;n) const
+{
+    std::cout &lt;&lt; &quot;Complex::realAdd&quot; &lt;&lt; std::endl;
+    return Number::makeComplex (this-&gt;rpart + n.val, this-&gt;ipart);
+}
+
+Number Complex::complexAdd (Complex const &amp;n) const
+{
+    std::cout &lt;&lt; &quot;Complex::complexAdd&quot; &lt;&lt; std::endl;
+    return Number::makeComplex (this-&gt;rpart + n.rpart, this-&gt;ipart + n.ipart);
+}
+
+RealNumber::RealNumber (double r)
+: Number (BaseConstructor()), val (r)
+{
+    std::cout &lt;&lt; &quot;Constructing a RealNumber&quot; &lt;&lt; std::endl;
+}
+
+RealNumber::RealNumber (const RealNumber &amp;r)
+: Number (BaseConstructor()), val (r.val)
+{
+    std::cout &lt;&lt; &quot;Constructing a RealNumber using RealNumber::RealNumber&quot; &lt;&lt;
+    std::endl;
+}
+
+RealNumber::~RealNumber()
+{
+    std::cout &lt;&lt; &quot;Inside RealNumber::~RealNumber()&quot; &lt;&lt; std::endl;
+}
+
+Number RealNumber::operator + (Number const &amp;n) const
+{
+    return n.realAdd (*this);
+}
+
+Number RealNumber::realAdd (RealNumber const &amp;n) const
+{
+    std::cout &lt;&lt; &quot;RealNumber::realAdd&quot; &lt;&lt; std::endl;
+    return Number::makeReal (this-&gt;val + n.val);
+}
+
+Number RealNumber::complexAdd (Complex const &amp;n) const
+{
+    std::cout &lt;&lt; &quot;RealNumber::complexAdd&quot; &lt;&lt; std::endl;
+    return Number::makeComplex (this-&gt;val + n.rpart, n.ipart);
+}
+
+namespace std
+{
+    template &lt;&gt;
+    void swap (Number &amp; n1, Number &amp; n2)
+    {
+        n1.swap (n2);
+    }
+}
+
+int main (void)
+{
+    Number n1 = Number::makeComplex (1, 2);
+    Number n2 = Number::makeReal (10);
+    Number n3 = n1 + n2;
+    std::cout &lt;&lt; &quot;Finished&quot; &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+<h2 id="attach-by-initialization">Attach by Initialization</h2>
+<p>目的：在程序运行前就将用户定义的类附着到框架（例如MFC）。</p>
+<p>解决方案：全局对象和全局面名空间的静态对象在main函数之前初始化，这个特性可以用于将一个对象附着到一个框架上（框架不允许程序员写自己的main函数）。下面是MFC的一个例子。</p>
+<pre><code>///// File = Hello.h
+class HelloApp: public CWinApp
+{
+public:
+virtual BOOL InitInstance ();
+};
+///// File = Hello.cpp
+#include &lt;afxwin.h&gt;
+#include &quot;Hello.h&quot;
+HelloApp myApp; // Global &quot;application&quot; object
+BOOL HelloApp::InitInstance ()
+{
+m_pMainWnd = new CFrameWnd();
+m_pMainWnd-&gt;Create(0,&quot;Hello, World!!&quot;);
+m_pMainWnd-&gt;ShowWindow(SW_SHOW);
+return TRUE;
+}
+</code></pre>
+<p>C++</p>
+<p>上述代码的重点在于全局变量myApp在main函数之前调用默认构造函数进行初始化。</p>
+<h2 id="attorney-client">Attorney-Client</h2>
+<p>目的：想要访问一个类的内部，可以通过friend申明，但是无法控制对类的实现细节的访问粒度。</p>
+<pre><code>class Foo
+{
+    private:
+    void A(int a);
+    void B(float b);
+    void C(double c);
+    friend class Bar;
+};
+
+class Bar {
+// This class needs access to Foo::A and Foo::B only.
+// C++ friendship rules, however, give access to all the private members of Foo.
+};
+</code></pre>
+<p>解决方案：添加一个间接层。Client类将Attorney类设置为friend，由它来控制内部访问，不同于Proxy，Attorney仅复制Client的一部分内部接口。</p>
+<pre><code>class Client
+{
+    private:
+    void A(int a);
+    void B(float b);
+    void C(double c);
+    friend class Attorney;
+};
+
+class Attorney {
+private:
+    static void callA(Client &amp; c, int a) {
+        c.A(a);
+    }
+
+    static void callB(Client &amp; c, float b) {
+        c.B(b);
+    }
+
+    friend class Bar;
+};
+
+class Bar {
+// Bar now has access to only Client::A and Client::B through the Attorney.
+};
+</code></pre>
+<p>注意：由于多态的原因，对基类的访问控制会传递到派生类,下面这个例子中，尽管类Derived没有声明类Attorney为friend，但是main函数仍能通过Attorney访问Func。</p>
+<pre><code>#include &lt;cstdio&gt;
+class Base {
+private:
+    virtual void Func(int x) = 0;
+    friend class Attorney;
+public:
+    virtual ~Base() {}
+};
+
+class Derived : public Base {
+private:
+    virtual void Func(int x) {
+      printf(&quot;Derived::Func\n&quot;); // This is called even though main is not a friend of Derived.
+    }
+public:
+  ~Derived() {}
+};
+
+class Attorney {
+private:
+    static void callFunc(Base &amp; b, int x) {
+    return b.Func(x);
+    }
+friend int main (void);
+};
+
+int main(void) {
+  Derived d;
+  Attorney::callFunc(d, 10);
+}
+</code></pre>
