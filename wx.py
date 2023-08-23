@@ -1,4 +1,5 @@
 import hashlib,os,requests,time
+from xml.etree import ElementTree
 
 from flask import Blueprint,abort,request,current_app
 
@@ -15,10 +16,11 @@ current_app.config['WX_USER_COUNT'] = 0
 def wx_verify():
     return '4P6XPqWt5Gxg697V'
 
-@module_wx.route('/token')
+@module_wx.route('/token', methods=['GET','POST'])
 def token():
     if not request.args:
         abort(400)
+        
     list = [current_app.config['WX_TOKEN'], request.args['timestamp'], request.args['nonce']]
     list.sort()
     str =  list[0]+list[1]+list[2]
@@ -26,7 +28,49 @@ def token():
     sha1.update(str.encode('utf-8'))
     hashcode = sha1.hexdigest()
     if hashcode == request.args['signature']:
-        return request.args['echostr']
+        if request.method == 'GET':
+            return request.args['echostr']
+        else:
+            root=ElementTree.fromstring(request.data.decode())
+            data={}
+            for child in root:
+                data[child.tag]=child.text
+            # print(request.args) ImmutableMultiDict([('signature', '1f8d060e9d62bba50f6c4aac90765cf67e7fe098'), ('timestamp', '1692767175'), ('nonce', '467465726'), ('openid', 'otFB85v-7XCAQwS1Cj7rEt8XXwsU')])
+            print(data)
+            # {'ToUserName': 'gh_f2cf37fb95e6', 'FromUserName': 'otFB85v-7XCAQwS1Cj7rEt8XXwsU', 'CreateTime': '1692767220', 'MsgType': 'event', 'Event': 'CLICK', 'EventKey': 'HUI_USER_POINTS'}
+            # {'ToUserName': 'gh_f2cf37fb95e6', 'FromUserName': 'otFB85v-7XCAQwS1Cj7rEt8XXwsU', 'CreateTime': '1692772409', 'MsgType': 'text', 'Content': '18112682607', 'MsgId': '24234674440793207'}
+            # TODO: 向用户推送消息
+            if 'EventKey' in data and data['EventKey'] == 'HUI_USER_BONDING':
+                return '''<xml>
+<ToUserName><![CDATA[{0[FromUserName]}]]></ToUserName>
+<FromUserName><![CDATA[{0[ToUserName]}]]></FromUserName>
+<CreateTime>{1}</CreateTime>
+<MsgType><![CDATA[text]]></MsgType>
+<Content><![CDATA[{2}]]></Content>
+</xml>'''.format(data,int(time.time()),'请输入在本店注册会员时登记的手机号码')
+            if 'EventKey' in data and data['EventKey'] == 'HUI_USER_POINTS':
+                return '''<xml>
+<ToUserName><![CDATA[{0[FromUserName]}]]></ToUserName>
+<FromUserName><![CDATA[{0[ToUserName]}]]></FromUserName>
+<CreateTime>{1}</CreateTime>
+<MsgType><![CDATA[text]]></MsgType>
+<Content><![CDATA[{2}]]></Content>
+</xml>'''.format(data,int(time.time()), 100)
+            if 'Content' in data:
+                return '''<xml>
+<ToUserName><![CDATA[{0[FromUserName]}]]></ToUserName>
+<FromUserName><![CDATA[{0[ToUserName]}]]></FromUserName>
+<CreateTime>{1}</CreateTime>
+<MsgType><![CDATA[text]]></MsgType>
+<Content><![CDATA[{2}]]></Content>
+</xml>'''.format(data,int(time.time()), '绑定成功')
+            return '''<xml>
+ 61<ToUserName><![CDATA[{0[FromUserName]}]]></ToUserName>
+ 62<FromUserName><![CDATA[{0[ToUserName]}]]></FromUserName>
+ 63<CreateTime>{1}</CreateTime>
+ 64<MsgType><![CDATA[text]]></MsgType>
+ 65<Content><![CDATA[{2}]]></Content>
+ 66</xml>'''.format(data,int(time.time()), '出错，此功能暂时不可用')
     else:
         return abort(403)
 
