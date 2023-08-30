@@ -23,8 +23,19 @@ class ODBCServerProtocol:
 
     def execute(self,sql):
         if self.cursor:
-            self.cursor.execute(sql)
-            return self.cursor.fetchall()
+            sql_type = sql[0:6].upper()
+            result = []
+            if sql_type == 'SELECT':
+                self.cursor.execute(sql)
+                return self.cursor.fetchall()
+            elif sql_type == 'UPDATE':
+                self.cursor.execute(sql)
+                self.cnxn.commit()
+                result.append(self.cursor.rowcount)
+                return result
+            else:
+                result.append('NOT SUPPORTED')
+                return result
     
     def connection_made(self, transport):
         print("UDP connection OK")
@@ -35,21 +46,25 @@ class ODBCServerProtocol:
         json_data = json.loads(message)
         sql = json_data["SQL"]
         print(sql)
-        fetch_data = self.execute(sql)
-        print(fetch_data)
-        # convert reslut row to list
-        result = []
-        for row in fetch_data:
-            list = []
-            for field in row:
-                # convert decimal to string
-                if field and isinstance(field,Decimal):
-                    list.append(str(field))
-                else:
-                    list.append(field)
-            result.append(list)
+        result = self.execute(sql)
+        print(result)
         
-        data=json.dumps(result)
+        result_list = []
+        if not isinstance(result[0],pyodbc.Row):
+            result_list = result
+        else:
+            # convert reslut row to list
+            for row in result:
+                sublist = []
+                for field in row:
+                    # convert decimal to string
+                    if field and isinstance(field,Decimal):
+                        sublist.append(str(field))
+                    else:
+                        sublist.append(field)
+                result_list.append(sublist)
+        
+        data=json.dumps(result_list)
         self.transport.sendto(data.encode(), addr)
 
 async def main():
