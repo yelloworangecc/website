@@ -6,4 +6,4 @@ if [ "x$flask_exist" != "x" ]; then
     echo kill $pid...
     kill $pid
 fi
-python3 app.py 2>&1 | tee log.txt
+python3 app.py

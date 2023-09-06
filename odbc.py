@@ -50,19 +50,20 @@ class ODBCServerProtocol:
         print(result)
         
         result_list = []
-        if not isinstance(result[0],pyodbc.Row):
-            result_list = result
-        else:
-            # convert reslut row to list
-            for row in result:
-                sublist = []
-                for field in row:
-                    # convert decimal to string
-                    if field and isinstance(field,Decimal):
-                        sublist.append(str(field))
-                    else:
-                        sublist.append(field)
-                result_list.append(sublist)
+        if result:
+            if not isinstance(result[0],pyodbc.Row):
+                result_list = result
+            else:
+                # convert reslut row to list
+                for row in result:
+                    sublist = []
+                    for field in row:
+                        # convert decimal to string
+                        if field and isinstance(field,Decimal):
+                            sublist.append(str(field))
+                        else:
+                            sublist.append(field)
+                    result_list.append(sublist)
         
         data=json.dumps(result_list)
         self.transport.sendto(data.encode(), addr)
