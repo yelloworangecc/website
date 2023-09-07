@@ -21,7 +21,7 @@ def DBProxy_exec(json_data):
 
 # get user phone(member ID) and membership shop
 def DBProxy_getUser(wx_id):
-    sql = "SELECT TOP 1 DH, LLBM FROM BM_WLDW WHERE CZ='{0}'".format(self.wx_id)
+    sql = "SELECT TOP 1 DH, LLBM FROM BM_WLDW WHERE CZ='{0}'".format(wx_id)
     data = {}
     data['SQL'] = sql
     data = DBProxy_exec(data)
@@ -34,7 +34,7 @@ def DBProxy_userPoints(wx_id):
     sql = "SELECT SYJF FROM BM_WLDW WHERE CZ='{0}'".format(wx_id)
     data={}
     data['SQL']=sql
-    data = DBProxy_exec(json_data)
+    data = DBProxy_exec(data)
     if data and isinstance(data,list) and data[0] and isinstance(data[0],list):
         return data[0][0]
     else:
@@ -171,10 +171,14 @@ class WXManager:
 
     @staticmethod
     def expire():
+        expire_list = []
+        int_time = int(time.time())
         for wx_id in WXManager.cached_user:
             wx_user=WXManager.getUser(wx_id)
-            if wx_user.isExpired(int(time.time())):
-                WXManager.remove(wx_id)
+            if wx_user.isExpired(int_time):
+                expire_list.append(wx_id)
+        for wx_id in expire_list:
+            WXManager.remove(wx_id)
         timer = threading.Timer(200,WXManager.expire)
         timer.start()
 
