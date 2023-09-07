@@ -37,8 +37,8 @@ def token():
             for child in root:
                 data[child.tag]=child.text
             print(data)
-            wx_manager = WXManager.get(data['FromUserName'])
-            return wx_manager.handle(data)
+            wx_user = WXManager.getUser(data['FromUserName'])
+            return wx_user.handle(data)
     else:
         return abort(403)
 
